@@ -1,0 +1,38 @@
+{
+  "name": "meuappreactnative-backend",
+  "version": "1.0.0",
+  "description": "Backend para app de finanças pessoais",
+  "main": "dist/serve.js",
+  "scripts": {
+    "start": "node dist/serve.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/serve.ts",
+    "build": "tsc",
+    "seed": "ts-node src/scripts/seedUsers.ts"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "ts-node-dev": "^2.0.0"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "mongodb",
+    "jwt",
+    "authentication"
+  ],
+  "author": "Alden",
+  "license": "MIT"
+}

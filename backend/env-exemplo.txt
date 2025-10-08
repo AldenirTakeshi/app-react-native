@@ -1,0 +1,56 @@
+# ===========================================
+# CONFIGURAÇÕES DO BANCO DE DADOS
+# ===========================================
+
+# URL de conexão com o MongoDB
+# Para desenvolvimento local, use: mongodb://localhost:27017/meuappreactnative
+# Para MongoDB Atlas, use: mongodb+srv://usuario:senha@cluster.mongodb.net/meuappreactnative
+MONGODB_URI=mongodb://localhost:27017/meuappreactnative
+
+# ===========================================
+# CONFIGURAÇÕES DO SERVIDOR
+# ===========================================
+
+# Porta onde o servidor irá rodar (padrão: 3001)
+PORT=3001
+
+# ===========================================
+# CONFIGURAÇÕES DE SEGURANÇA
+# ===========================================
+
+# Chave secreta para assinar tokens JWT
+# IMPORTANTE: Use uma chave forte e única em produção!
+# Você pode gerar uma chave segura em: https://generate-secret.vercel.app/32
+JWT_SECRET=sua_chave_jwt_super_segura_aqui_123456789
+
+# ===========================================
+# CONFIGURAÇÕES DE AMBIENTE
+# ===========================================
+
+# Ambiente de execução (development, production, test)
+NODE_ENV=development
+
+# ===========================================
+# INSTRUÇÕES DE USO
+# ===========================================
+
+# 1. Renomeie este arquivo para .env
+#    mv env-exemplo.txt .env
+
+# 2. Configure as variáveis acima com seus valores reais
+
+# 3. Para MongoDB local:
+#    - Instale o MongoDB: https://www.mongodb.com/try/download/community
+#    - Inicie o serviço: mongod
+
+# 4. Para MongoDB Atlas (nuvem):
+#    - Crie uma conta em: https://www.mongodb.com/atlas
+#    - Crie um cluster gratuito
+#    - Copie a string de conexão e cole em MONGODB_URI
+
+# 5. Gere uma chave JWT segura:
+#    - Acesse: https://generate-secret.vercel.app/32
+#    - Cole a chave gerada em JWT_SECRET
+
+# 6. Execute o projeto:
+#    npm run dev
