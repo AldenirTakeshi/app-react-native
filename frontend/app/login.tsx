@@ -84,6 +84,12 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+          <View style={{ marginTop: 16, alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => router.push('/register')}>
+              <Text style={{ color: '#aaa' }}>Não tem conta? Criar conta</Text>
+            </TouchableOpacity>
+          </View>
+
           <View style={styles.testCredentials}>
             <Text style={styles.testTitle}>Credenciais de teste:</Text>
             <Text style={styles.testText}>Email: joao@teste.com</Text>

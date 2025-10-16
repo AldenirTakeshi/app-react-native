@@ -20,6 +20,12 @@ export interface LoginResponse {
   };
 }
 
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  data: { token: string; user: User };
+}
+
 export interface MeResponse {
   success: boolean;
   data: {
@@ -84,11 +90,28 @@ class ApiService {
       body: JSON.stringify({ email, password }),
     });
 
-    // Salvar token após login bem-sucedido
     if (response.success && response.data.token) {
       await this.setToken(response.data.token);
     }
 
+    return response;
+  }
+
+  async register(
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<RegisterResponse> {
+    const response = await this.makeRequest<RegisterResponse>(
+      '/auth/register',
+      {
+        method: 'POST',
+        body: JSON.stringify({ name, email, password }),
+      },
+    );
+    if (response.success && response.data.token) {
+      await this.setToken(response.data.token);
+    }
     return response;
   }
 
@@ -108,7 +131,6 @@ class ApiService {
       await this.me();
       return true;
     } catch (error) {
-      // Token inválido, remover
       await this.removeToken();
       return false;
     }

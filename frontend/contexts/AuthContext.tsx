@@ -13,6 +13,7 @@ interface AuthContextData {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   checkAuth: () => Promise<void>;
 }
 
@@ -65,6 +66,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const register = async (name: string, email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      const response = await apiService.register(name, email, password);
+      if (response.success) {
+        setUser(response.data.user);
+      } else {
+        throw new Error(response.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       setIsLoading(true);
@@ -89,6 +104,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAuthenticated,
         login,
         logout,
+        register,
         checkAuth,
       }}
     >
