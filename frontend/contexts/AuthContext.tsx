@@ -41,7 +41,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(null);
       }
     } catch (error) {
-      console.error('Erro ao verificar autenticação:', error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -56,7 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (response.success) {
         setUser(response.data.user);
       } else {
-        throw new Error(response.message);
+        throw new Error(response.message || 'Erro no login');
       }
     } catch (error) {
       console.error('Erro no login:', error);
@@ -83,10 +82,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       setIsLoading(true);
-      await apiService.logout();
       setUser(null);
+      await apiService.logout();
     } catch (error) {
-      console.error('Erro no logout:', error);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }

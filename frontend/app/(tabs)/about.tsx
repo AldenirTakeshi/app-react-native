@@ -1,22 +1,27 @@
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { router } from 'expo-router';
 
 export default function AboutScreen() {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
-    Alert.alert('Sair', 'Tem certeza que deseja sair da sua conta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Sair',
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.replace('/login');
+    if (typeof window !== 'undefined') {
+      const confirmed = window.confirm('Tem certeza que deseja sair da sua conta?');
+      if (confirmed) {
+        await logout();
+      }
+    } else {
+      Alert.alert('Sair', 'Tem certeza que deseja sair da sua conta?', [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+          },
         },
-      },
-    ]);
+      ]);
+    }
   };
 
   return (

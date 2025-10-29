@@ -11,13 +11,16 @@ export default function AuthNavigator() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === '(tabs)';
+    const inLoginRoute = segments[0] === 'login' || segments[0] === 'register';
 
-    if (isAuthenticated && !inAuthGroup) {
-      // Usuário autenticado, redirecionar para tabs
-      router.replace('/(tabs)');
-    } else if (!isAuthenticated && inAuthGroup) {
-      // Usuário não autenticado, redirecionar para login
-      router.replace('/login');
+    if (isAuthenticated) {
+      if (inLoginRoute) {
+        router.replace('/(tabs)');
+      }
+    } else {
+      if (inAuthGroup) {
+        router.replace('/login');
+      }
     }
   }, [isAuthenticated, isLoading, segments]);
 

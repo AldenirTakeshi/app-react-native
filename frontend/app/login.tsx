@@ -36,8 +36,13 @@ export default function LoginScreen() {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>Bem-vindo!</Text>
@@ -92,7 +97,7 @@ export default function LoginScreen() {
 
           <View style={styles.testCredentials}>
             <Text style={styles.testTitle}>Credenciais de teste:</Text>
-            <Text style={styles.testText}>Email: joao@teste.com</Text>
+            <Text style={styles.testText}>Email: teste@teste.com</Text>
             <Text style={styles.testText}>Senha: 123456</Text>
           </View>
         </View>
@@ -110,10 +115,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
+    minHeight: '100%',
   },
   content: {
-    flex: 1,
     justifyContent: 'center',
+    minHeight: 400,
   },
   header: {
     alignItems: 'center',
