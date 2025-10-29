@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
-export default function MetasScreen() {
+export default function App() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Metas</Text>
-      <Text style={styles.subtitle}>Defina e acompanhe suas metas financeiras</Text>
+      <Text style={styles.text}>App Funcionando! 🎉</Text>
+      <Text style={styles.subtext}>Se você vê isso, o problema foi resolvido!</Text>
     </View>
   );
 }
@@ -15,17 +16,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#121212',
-    padding: 20,
   },
-  title: {
+  text: {
     fontSize: 24,
-    fontWeight: 'bold',
     color: '#fff',
     marginBottom: 10,
   },
-  subtitle: {
+  subtext: {
     fontSize: 16,
     color: '#aaa',
-    textAlign: 'center',
   },
 });

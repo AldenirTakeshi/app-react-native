@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { router, useSegments } from 'expo-router';
-import { useEffect } from 'react';
 
 export default function AuthNavigator() {
   const { isAuthenticated, isLoading } = useAuth();

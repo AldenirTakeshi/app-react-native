@@ -27,8 +27,9 @@ export default function RegisterScreen() {
     try {
       await register(name.trim(), email.trim(), password);
       router.replace('/(tabs)');
-    } catch (e: any) {
-      Alert.alert('Erro', e?.message || 'Não foi possível registrar');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Não foi possível registrar';
+      Alert.alert('Erro', message);
     }
   };
 
