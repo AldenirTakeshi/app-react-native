@@ -44,18 +44,18 @@ export class AuthController {
       );
 
       res.json({
-        // success: true,
+        success: true,
         message: 'Login realizado com sucesso',
-        // data: {
-        //   token,
-        //   user: {
-        //     id: user._id,
-        //     name: user.name,
-        //     email: user.email,
-        //     avatarUrl: user.avatarUrl,
-        //     createdAt: user.createdAt,
-        //   },
-        // },
+        data: {
+          token,
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            avatarUrl: user.avatarUrl,
+            createdAt: user.createdAt,
+          },
+        },
       });
     } catch (error) {
       console.error('Erro no login:', error);
@@ -97,18 +97,18 @@ export class AuthController {
       );
 
       return res.status(201).json({
-        // success: true,
+        success: true,
         message: 'Usuário registrado com sucesso',
-        // data: {
-        //   token,
-        //   user: {
-        //     id: user._id,
-        //     name: user.name,
-        //     email: user.email,
-        //     avatarUrl: user.avatarUrl,
-        //     createdAt: user.createdAt,
-        //   },
-        // },
+        data: {
+          token,
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            avatarUrl: user.avatarUrl,
+            createdAt: user.createdAt,
+          },
+        },
       });
     } catch (error) {
       console.error('Erro no registro:', error);

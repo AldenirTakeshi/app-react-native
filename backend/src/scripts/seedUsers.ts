@@ -1,17 +1,17 @@
+import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import { connectDatabase } from '../config/database';
 import { User } from '../models';
 
+dotenv.config();
+
 const seedUsers = async () => {
   try {
-    // Conectar ao banco
     await connectDatabase();
 
-    // Limpar usuários existentes (opcional)
     await User.deleteMany({});
     console.log('🧹 Usuários existentes removidos');
 
-    // Criar usuários de teste
     const users = [
       {
         name: 'João Silva',
@@ -30,7 +30,6 @@ const seedUsers = async () => {
       },
     ];
 
-    // Inserir usuários no banco
     const createdUsers = await User.insertMany(users);
 
     console.log('✅ Usuários de teste criados:');
