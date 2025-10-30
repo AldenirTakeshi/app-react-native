@@ -1,25 +1,26 @@
 import { Request, Response } from 'express';
 
 class BaseController {
-    getAll(req: Request, res: Response) {
-        // Implementar lógica para obter todos os registros
-    }
+  static getAll(req: Request, res: Response) {
+    res.json({ message: 'Get all - implementar lógica' });
+  }
 
-    getById(req: Request, res: Response) {
-        // Implementar lógica para obter um registro pelo ID
-    }
+  static getById(req: Request, res: Response) {
+    res.json({ message: 'Get by ID - implementar lógica' });
+  }
 
-    create(req: Request, res: Response) {
-        // Implementar lógica para criar um novo registro
-    }
+  static create(req: Request, res: Response) {
+    res.json({ message: 'Create - implementar lógica' });
+  }
 
-    update(req: Request, res: Response) {
-        // Implementar lógica para atualizar um registro existente
-    }
+  static update(req: Request, res: Response) {
+    res.json({ message: 'Update - implementar lógica' });
+  }
 
-    delete(req: Request, res: Response) {
-        // Implementar lógica para deletar um registro
-    }
+  static delete(req: Request, res: Response) {
+    res.json({ message: 'Delete - implementar lógica' });
+  }
 }
 
+export { BaseController as YourController };
 export default BaseController;
