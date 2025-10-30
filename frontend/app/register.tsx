@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { router } from 'expo-router';
 
@@ -18,6 +19,7 @@ export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password.trim()) {
@@ -34,16 +36,20 @@ export default function RegisterScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-    >
-      <ScrollView 
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
+        <ScrollView 
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          alwaysBounceVertical={false}
+          scrollEventThrottle={16}
+        >
         <View style={styles.card}>
           <Text style={styles.title}>Criar conta</Text>
 
@@ -68,14 +74,26 @@ export default function RegisterScreen() {
           />
 
           <Text style={styles.label}>Senha</Text>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Sua senha"
-            placeholderTextColor="#666"
-            secureTextEntry
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Sua senha"
+              placeholderTextColor="#666"
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeButton}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Ionicons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
@@ -94,14 +112,21 @@ export default function RegisterScreen() {
             <Text style={{ color: '#aaa' }}>Já tem conta? Entrar</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121212' },
-  scroll: { flexGrow: 1, justifyContent: 'center', padding: 20 },
+  keyboardView: { flex: 1 },
+  scroll: { 
+    flexGrow: 1, 
+    justifyContent: 'center', 
+    padding: 20,
+    minHeight: '100%'
+  },
   card: {
     backgroundColor: '#1e1e1e',
     borderRadius: 12,
@@ -118,6 +143,24 @@ const styles = StyleSheet.create({
     color: '#fff',
     borderColor: '#333',
     borderWidth: 1,
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  passwordInput: {
+    backgroundColor: '#232323',
+    borderRadius: 10,
+    padding: 14,
+    paddingRight: 50,
+    color: '#fff',
+    borderColor: '#333',
+    borderWidth: 1,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 14,
+    top: 14,
+    padding: 4,
   },
   button: {
     backgroundColor: '#007AFF',
