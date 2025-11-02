@@ -69,6 +69,98 @@ export interface MeResponse {
   };
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  address?: string;
+  latitude: number;
+  longitude: number;
+  city?: string;
+  state?: string;
+  country?: string;
+}
+
+export interface Event {
+  id: string;
+  name: string;
+  description: string;
+  date: string;
+  time: string;
+  price: number;
+  category: Category | string;
+  location: Location | string;
+  imageUrl?: string;
+  createdBy: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventsListResponse {
+  success: boolean;
+  data: {
+    events: Event[];
+  };
+  count: number;
+}
+
+export interface EventResponse {
+  success: boolean;
+  data: {
+    event: Event;
+  };
+}
+
+export interface CategoriesListResponse {
+  success: boolean;
+  data: {
+    categories: Category[];
+  };
+  count: number;
+}
+
+export interface CategoryResponse {
+  success: boolean;
+  data: {
+    category: Category;
+  };
+}
+
+export interface LocationsListResponse {
+  success: boolean;
+  data: {
+    locations: Location[];
+  };
+  count: number;
+}
+
+export interface LocationResponse {
+  success: boolean;
+  data: {
+    location: Location;
+  };
+}
+
+export interface UploadResponse {
+  success: boolean;
+  message: string;
+  data: {
+    url: string;
+    filename: string;
+  };
+}
+
 class ApiService {
   private async getToken(): Promise<string | null> {
     try {
@@ -231,6 +323,216 @@ class ApiService {
       await this.removeToken();
       return false;
     }
+  }
+
+  async getEvents(
+    search?: string,
+    category?: string,
+    location?: string,
+  ): Promise<EventsListResponse> {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (category) params.append('category', category);
+    if (location) params.append('location', location);
+
+    const query = params.toString();
+    const endpoint = `/events${query ? `?${query}` : ''}`;
+
+    return this.makeRequest<EventsListResponse>(endpoint, {
+      method: 'GET',
+    });
+  }
+
+  async getEventById(id: string): Promise<EventResponse> {
+    return this.makeRequest<EventResponse>(`/events/${id}`, {
+      method: 'GET',
+    });
+  }
+
+  async createEvent(eventData: {
+    name: string;
+    description: string;
+    date: string;
+    time: string;
+    price: number;
+    category: string;
+    location: string;
+    imageUrl?: string;
+  }): Promise<EventResponse> {
+    return this.makeRequest<EventResponse>('/events', {
+      method: 'POST',
+      body: JSON.stringify(eventData),
+    });
+  }
+
+  async updateEvent(
+    id: string,
+    eventData: Partial<{
+      name: string;
+      description: string;
+      date: string;
+      time: string;
+      price: number;
+      category: string;
+      location: string;
+      imageUrl: string;
+    }>,
+  ): Promise<EventResponse> {
+    return this.makeRequest<EventResponse>(`/events/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(eventData),
+    });
+  }
+
+  async deleteEvent(
+    id: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.makeRequest<{ success: boolean; message: string }>(
+      `/events/${id}`,
+      {
+        method: 'DELETE',
+      },
+    );
+  }
+
+  async getCategories(): Promise<CategoriesListResponse> {
+    return this.makeRequest<CategoriesListResponse>('/categories', {
+      method: 'GET',
+    });
+  }
+
+  async getCategoryById(id: string): Promise<CategoryResponse> {
+    return this.makeRequest<CategoryResponse>(`/categories/${id}`, {
+      method: 'GET',
+    });
+  }
+
+  async createCategory(categoryData: {
+    name: string;
+    description?: string;
+    color?: string;
+    icon?: string;
+  }): Promise<CategoryResponse> {
+    return this.makeRequest<CategoryResponse>('/categories', {
+      method: 'POST',
+      body: JSON.stringify(categoryData),
+    });
+  }
+
+  async updateCategory(
+    id: string,
+    categoryData: Partial<{
+      name: string;
+      description: string;
+      color: string;
+      icon: string;
+    }>,
+  ): Promise<CategoryResponse> {
+    return this.makeRequest<CategoryResponse>(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(categoryData),
+    });
+  }
+
+  async deleteCategory(
+    id: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.makeRequest<{ success: boolean; message: string }>(
+      `/categories/${id}`,
+      {
+        method: 'DELETE',
+      },
+    );
+  }
+
+  async getLocations(): Promise<LocationsListResponse> {
+    return this.makeRequest<LocationsListResponse>('/locations', {
+      method: 'GET',
+    });
+  }
+
+  async getLocationById(id: string): Promise<LocationResponse> {
+    return this.makeRequest<LocationResponse>(`/locations/${id}`, {
+      method: 'GET',
+    });
+  }
+
+  async createLocation(locationData: {
+    name: string;
+    address?: string;
+    latitude: number;
+    longitude: number;
+    city?: string;
+    state?: string;
+    country?: string;
+    zipCode?: string;
+  }): Promise<LocationResponse> {
+    return this.makeRequest<LocationResponse>('/locations', {
+      method: 'POST',
+      body: JSON.stringify(locationData),
+    });
+  }
+
+  async updateLocation(
+    id: string,
+    locationData: Partial<{
+      name: string;
+      address: string;
+      latitude: number;
+      longitude: number;
+      city: string;
+      state: string;
+      country: string;
+      zipCode: string;
+    }>,
+  ): Promise<LocationResponse> {
+    return this.makeRequest<LocationResponse>(`/locations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(locationData),
+    });
+  }
+
+  async deleteLocation(
+    id: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.makeRequest<{ success: boolean; message: string }>(
+      `/locations/${id}`,
+      {
+        method: 'DELETE',
+      },
+    );
+  }
+
+  async uploadImage(uri: string, filename?: string): Promise<UploadResponse> {
+    const token = await this.getToken();
+
+    const formData = new FormData();
+
+    const imageName = filename || uri.split('/').pop() || 'image.jpg';
+    const match = /\.(\w+)$/.exec(imageName);
+    const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+    formData.append('image', {
+      uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''),
+      name: imageName,
+      type: type,
+    } as any);
+
+    const response = await fetch(`${API_BASE_URL}/upload/image`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Erro ao fazer upload da imagem');
+    }
+
+    return data;
   }
 }
 
