@@ -1,3 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -42,9 +44,29 @@ export default function AboutScreen() {
       <View style={styles.infoSection}>
         <Text style={styles.title}>Sobre o App</Text>
         <Text style={styles.subtitle}>
-          Gerencie suas finanças de forma simples e eficiente.
+          Gerencie eventos de forma simples e eficiente.
         </Text>
         <Text style={styles.version}>Versão 1.0.0</Text>
+      </View>
+
+      <View style={styles.menuSection}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/categorias' as any)}
+        >
+          <Ionicons name="pricetag-outline" size={24} color="#007AFF" />
+          <Text style={styles.menuItemText}>Gerenciar Categorias</Text>
+          <Ionicons name="chevron-forward" size={20} color="#666" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push('/locais' as any)}
+        >
+          <Ionicons name="location-outline" size={24} color="#FF9800" />
+          <Text style={styles.menuItemText}>Gerenciar Locais</Text>
+          <Ionicons name="chevron-forward" size={20} color="#666" />
+        </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -113,6 +135,25 @@ const styles = StyleSheet.create({
   version: {
     fontSize: 14,
     color: '#666',
+  },
+  menuSection: {
+    width: '100%',
+    marginBottom: 24,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    gap: 12,
+  },
+  menuItemText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '500',
   },
   logoutButton: {
     backgroundColor: '#FF3B30',

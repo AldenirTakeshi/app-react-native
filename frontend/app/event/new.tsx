@@ -49,6 +49,12 @@ export default function EventFormScreen() {
         setCategories(categoriesRes.data.categories);
         if (categoriesRes.data.categories.length > 0) {
           setCategoryId(categoriesRes.data.categories[0].id);
+        } else {
+          Alert.alert(
+            'Sem categorias',
+            'Não há categorias cadastradas. Vá em Perfil > Gerenciar Categorias para criar uma.',
+            [{ text: 'OK' }],
+          );
         }
       }
 
@@ -56,6 +62,12 @@ export default function EventFormScreen() {
         setLocations(locationsRes.data.locations);
         if (locationsRes.data.locations.length > 0) {
           setLocationId(locationsRes.data.locations[0].id);
+        } else {
+          Alert.alert(
+            'Sem locais',
+            'Não há locais cadastrados. Vá em Perfil > Gerenciar Locais para criar um.',
+            [{ text: 'OK' }],
+          );
         }
       }
     } catch (error) {
@@ -254,43 +266,81 @@ export default function EventFormScreen() {
             keyboardType="decimal-pad"
           />
 
-          <Text style={styles.label}>Categoria *</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={categoryId}
-              onValueChange={setCategoryId}
-              style={styles.picker}
-              dropdownIconColor="#fff"
-            >
-              {categories.map((cat) => (
-                <Picker.Item
-                  key={cat.id}
-                  label={cat.name}
-                  value={cat.id}
-                  color="#fff"
-                />
-              ))}
-            </Picker>
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Categoria *</Text>
+            {categories.length === 0 && (
+              <TouchableOpacity
+                onPress={() => router.push('/categorias' as any)}
+                style={styles.linkButton}
+              >
+                <Ionicons name="add-circle-outline" size={18} color="#007AFF" />
+                <Text style={styles.linkText}>Criar categoria</Text>
+              </TouchableOpacity>
+            )}
           </View>
+          {categories.length > 0 ? (
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={categoryId}
+                onValueChange={setCategoryId}
+                style={styles.picker}
+                dropdownIconColor="#fff"
+              >
+                {categories.map((cat) => (
+                  <Picker.Item
+                    key={cat.id}
+                    label={cat.name}
+                    value={cat.id}
+                    color="#fff"
+                  />
+                ))}
+              </Picker>
+            </View>
+          ) : (
+            <View style={styles.emptyPicker}>
+              <Text style={styles.emptyPickerText}>
+                Nenhuma categoria disponível
+              </Text>
+            </View>
+          )}
 
-          <Text style={styles.label}>Local *</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={locationId}
-              onValueChange={setLocationId}
-              style={styles.picker}
-              dropdownIconColor="#fff"
-            >
-              {locations.map((loc) => (
-                <Picker.Item
-                  key={loc.id}
-                  label={loc.name}
-                  value={loc.id}
-                  color="#fff"
-                />
-              ))}
-            </Picker>
+          <View style={styles.inputRow}>
+            <Text style={styles.label}>Local *</Text>
+            {locations.length === 0 && (
+              <TouchableOpacity
+                onPress={() => router.push('/locais' as any)}
+                style={styles.linkButton}
+              >
+                <Ionicons name="add-circle-outline" size={18} color="#007AFF" />
+                <Text style={styles.linkText}>Criar local</Text>
+              </TouchableOpacity>
+            )}
           </View>
+          {locations.length > 0 ? (
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={locationId}
+                onValueChange={setLocationId}
+                style={styles.picker}
+                dropdownIconColor="#fff"
+              >
+                {locations.map((loc) => (
+                  <Picker.Item
+                    key={loc.id}
+                    label={loc.name}
+                    value={loc.id}
+                    color="#fff"
+                  />
+                ))}
+              </Picker>
+            </View>
+          ) : (
+            <View style={styles.emptyPicker}>
+              <Text style={styles.emptyPickerText}>
+                Nenhum local disponível
+              </Text>
+            </View>
+          )}
 
           <TouchableOpacity
             style={[
@@ -397,6 +447,35 @@ const styles = StyleSheet.create({
   },
   picker: {
     color: '#fff',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  linkButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  linkText: {
+    color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  emptyPicker: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 8,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#333',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+  },
+  emptyPickerText: {
+    color: '#666',
+    fontSize: 14,
   },
   submitButton: {
     backgroundColor: '#007AFF',
