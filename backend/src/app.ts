@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
+import eventRoutes from './routes/events';
+import categoryRoutes from './routes/categories';
+import locationRoutes from './routes/locations';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -23,5 +26,14 @@ app.get('/', (req, res) => {
 
 // Rotas de autenticação
 app.use('/auth', authRoutes);
+
+// Rotas de eventos
+app.use('/events', eventRoutes);
+
+// Rotas de categorias
+app.use('/categories', categoryRoutes);
+
+// Rotas de locais
+app.use('/locations', locationRoutes);
 
 export default app;
