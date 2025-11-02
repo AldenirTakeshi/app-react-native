@@ -5,23 +5,16 @@ export default function AboutScreen() {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
-    if (typeof window !== 'undefined') {
-      const confirmed = window.confirm('Tem certeza que deseja sair da sua conta?');
-      if (confirmed) {
-        await logout();
-      }
-    } else {
-      Alert.alert('Sair', 'Tem certeza que deseja sair da sua conta?', [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sair',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-          },
+    Alert.alert('Sair', 'Tem certeza que deseja sair da sua conta?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Sair',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
         },
-      ]);
-    }
+      },
+    ]);
   };
 
   return (

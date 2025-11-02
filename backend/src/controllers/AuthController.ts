@@ -142,4 +142,19 @@ export class AuthController {
       });
     }
   }
+
+  static async logout(req: Request, res: Response) {
+    try {
+      res.json({
+        success: true,
+        message: 'Logout realizado com sucesso',
+      });
+    } catch (error) {
+      console.error('Erro no logout:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor',
+      });
+    }
+  }
 }
