@@ -1,8 +1,16 @@
 import dotenv from 'dotenv';
+import path from 'path';
+
+const cwdEnvPath = path.resolve(process.cwd(), '.env');
+dotenv.config({ path: cwdEnvPath });
+
+if (!process.env.MONGODB_URI) {
+  const dirnameEnvPath = path.resolve(__dirname, '../../.env');
+  dotenv.config({ path: dirnameEnvPath });
+}
+
 import { connectDatabase } from '../config/database';
 import { Category, Location } from '../models';
-
-dotenv.config();
 
 const seedData = async () => {
   try {

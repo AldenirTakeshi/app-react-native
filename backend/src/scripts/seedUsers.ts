@@ -1,9 +1,17 @@
 import dotenv from 'dotenv';
+import path from 'path';
+
+const cwdEnvPath = path.resolve(process.cwd(), '.env');
+dotenv.config({ path: cwdEnvPath });
+
+if (!process.env.MONGODB_URI) {
+  const dirnameEnvPath = path.resolve(__dirname, '../../.env');
+  dotenv.config({ path: dirnameEnvPath });
+}
+
 import bcrypt from 'bcrypt';
 import { connectDatabase } from '../config/database';
 import { User } from '../models';
-
-dotenv.config();
 
 const seedUsers = async () => {
   try {
