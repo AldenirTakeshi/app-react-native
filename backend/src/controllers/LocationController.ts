@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { Location } from '../models';
 
 export class LocationController {
-  // Listar todos os locais
   static async list(req: Request, res: Response) {
     try {
       const locations = await Location.find().sort({ name: 1 }).exec();
@@ -21,7 +20,6 @@ export class LocationController {
     }
   }
 
-  // Buscar local por ID
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -48,10 +46,18 @@ export class LocationController {
     }
   }
 
-  // Criar novo local
   static async create(req: Request, res: Response) {
     try {
-      const { name, address, latitude, longitude, city, state, country, zipCode } = req.body;
+      const {
+        name,
+        address,
+        latitude,
+        longitude,
+        city,
+        state,
+        country,
+        zipCode,
+      } = req.body;
 
       if (!name || latitude === undefined || longitude === undefined) {
         return res.status(400).json({
@@ -81,7 +87,9 @@ export class LocationController {
       if (error.name === 'ValidationError') {
         return res.status(400).json({
           success: false,
-          message: Object.values(error.errors).map((e: any) => e.message).join(', '),
+          message: Object.values(error.errors)
+            .map((e: any) => e.message)
+            .join(', '),
         });
       }
       res.status(500).json({
@@ -91,11 +99,19 @@ export class LocationController {
     }
   }
 
-  // Atualizar local
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { name, address, latitude, longitude, city, state, country, zipCode } = req.body;
+      const {
+        name,
+        address,
+        latitude,
+        longitude,
+        city,
+        state,
+        country,
+        zipCode,
+      } = req.body;
 
       const location = await Location.findById(id);
 
@@ -106,7 +122,6 @@ export class LocationController {
         });
       }
 
-      // Atualizar campos
       if (name) location.name = name;
       if (address !== undefined) location.address = address;
       if (latitude !== undefined) location.latitude = Number(latitude);
@@ -128,7 +143,9 @@ export class LocationController {
       if (error.name === 'ValidationError') {
         return res.status(400).json({
           success: false,
-          message: Object.values(error.errors).map((e: any) => e.message).join(', '),
+          message: Object.values(error.errors)
+            .map((e: any) => e.message)
+            .join(', '),
         });
       }
       res.status(500).json({
@@ -138,7 +155,6 @@ export class LocationController {
     }
   }
 
-  // Deletar local
   static async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -167,4 +183,3 @@ export class LocationController {
     }
   }
 }
-

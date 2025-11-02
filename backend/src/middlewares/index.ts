@@ -10,12 +10,10 @@ export const exampleMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  // Middleware example logic
   console.log('Request received:', req.method, req.url);
   next();
 };
 
-// Middleware de autenticação JWT
 export const authenticateToken = async (
   req: Request,
   res: Response,
@@ -23,7 +21,7 @@ export const authenticateToken = async (
 ) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
       return res.status(401).json({
@@ -32,10 +30,8 @@ export const authenticateToken = async (
       });
     }
 
-    // Verificar e decodificar o token
     const decoded = jwt.verify(token, JWT_SECRET) as any;
 
-    // Buscar o usuário no banco
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(401).json({
@@ -44,7 +40,6 @@ export const authenticateToken = async (
       });
     }
 
-    // Adicionar o usuário ao request
     (req as any).user = user;
     next();
   } catch (error) {

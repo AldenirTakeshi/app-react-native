@@ -6,16 +6,13 @@ import eventRoutes from './routes/events';
 import categoryRoutes from './routes/categories';
 import locationRoutes from './routes/locations';
 
-// Carregar variáveis de ambiente
 dotenv.config();
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Rotas
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -24,16 +21,12 @@ app.get('/', (req, res) => {
   });
 });
 
-// Rotas de autenticação
 app.use('/auth', authRoutes);
 
-// Rotas de eventos
 app.use('/events', eventRoutes);
 
-// Rotas de categorias
 app.use('/categories', categoryRoutes);
 
-// Rotas de locais
 app.use('/locations', locationRoutes);
 
 export default app;

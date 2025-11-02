@@ -3,7 +3,6 @@ import { YourController } from '../controllers';
 
 const router = Router();
 
-// Define suas rotas aqui
 router.get('/your-endpoint', YourController.getAll);
 router.get('/your-endpoint/:id', YourController.getById);
 router.post('/your-endpoint', YourController.create);

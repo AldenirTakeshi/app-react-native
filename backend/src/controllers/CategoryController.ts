@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { Category } from '../models';
 
 export class CategoryController {
-  // Listar todas as categorias
   static async list(req: Request, res: Response) {
     try {
       const categories = await Category.find().sort({ name: 1 }).exec();
@@ -21,7 +20,6 @@ export class CategoryController {
     }
   }
 
-  // Buscar categoria por ID
   static async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -48,7 +46,6 @@ export class CategoryController {
     }
   }
 
-  // Criar nova categoria
   static async create(req: Request, res: Response) {
     try {
       const { name, description, color, icon } = req.body;
@@ -83,7 +80,9 @@ export class CategoryController {
       if (error.name === 'ValidationError') {
         return res.status(400).json({
           success: false,
-          message: Object.values(error.errors).map((e: any) => e.message).join(', '),
+          message: Object.values(error.errors)
+            .map((e: any) => e.message)
+            .join(', '),
         });
       }
       res.status(500).json({
@@ -93,7 +92,6 @@ export class CategoryController {
     }
   }
 
-  // Atualizar categoria
   static async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -108,7 +106,6 @@ export class CategoryController {
         });
       }
 
-      // Atualizar campos
       if (name) category.name = name;
       if (description !== undefined) category.description = description;
       if (color) category.color = color;
@@ -132,7 +129,9 @@ export class CategoryController {
       if (error.name === 'ValidationError') {
         return res.status(400).json({
           success: false,
-          message: Object.values(error.errors).map((e: any) => e.message).join(', '),
+          message: Object.values(error.errors)
+            .map((e: any) => e.message)
+            .join(', '),
         });
       }
       res.status(500).json({
@@ -142,7 +141,6 @@ export class CategoryController {
     }
   }
 
-  // Deletar categoria
   static async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -171,4 +169,3 @@ export class CategoryController {
     }
   }
 }
-
