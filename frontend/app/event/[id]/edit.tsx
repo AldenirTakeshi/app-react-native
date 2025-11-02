@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { apiService, Category, Event, Location } from '../../../services/api';
 import { showImagePickerOptions } from '../../../utils/imagePicker';
+import { buildImageUrl } from '../../../utils/apiConfig';
 
 export default function EditEventScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -121,7 +122,8 @@ export default function EditEventScreen() {
       if (imageUri) {
         try {
           const uploadResponse = await apiService.uploadImage(imageUri);
-          finalImageUrl = uploadResponse.data.url;
+          finalImageUrl =
+            uploadResponse.data.fullUrl || uploadResponse.data.url;
         } catch (error) {
           console.error('Erro no upload:', error);
           Alert.alert('Aviso', 'Imagem não foi atualizada');
@@ -180,9 +182,7 @@ export default function EditEventScreen() {
   const getImageUrl = (imageUrl?: string | null) => {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    const API_BASE_URL =
-      process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-    return `${API_BASE_URL}${imageUrl}`;
+    return buildImageUrl(imageUrl) || imageUrl;
   };
 
   if (loadingData) {

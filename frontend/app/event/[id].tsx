@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { apiService, Event, Location } from '../../services/api';
+import { buildImageUrl } from '../../utils/apiConfig';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function EventDetailScreen() {
@@ -98,9 +99,7 @@ export default function EventDetailScreen() {
   const getImageUrl = (imageUrl?: string) => {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    const API_BASE_URL =
-      process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-    return `${API_BASE_URL}${imageUrl}`;
+    return buildImageUrl(imageUrl) || imageUrl;
   };
 
   const isEventOwner = () => {

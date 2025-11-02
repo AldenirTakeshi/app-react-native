@@ -16,6 +16,7 @@ import {
   View,
 } from 'react-native';
 import { apiService, Category, Event, Location } from '../../services/api';
+import { buildImageUrl } from '../../utils/apiConfig';
 
 export default function EventsListScreen() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -145,9 +146,7 @@ export default function EventsListScreen() {
   const getImageUrl = (imageUrl?: string) => {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    const API_BASE_URL =
-      process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-    return `${API_BASE_URL}${imageUrl}`;
+    return buildImageUrl(imageUrl) || imageUrl;
   };
 
   if (loading && events.length === 0) {

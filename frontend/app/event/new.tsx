@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { apiService, Category, Location } from '../../services/api';
 import { showImagePickerOptions } from '../../utils/imagePicker';
+import { buildImageUrl } from '../../utils/apiConfig';
 
 export default function EventFormScreen() {
   const [name, setName] = useState('');
@@ -107,7 +108,8 @@ export default function EventFormScreen() {
       if (imageUri && !imageUrl) {
         try {
           const uploadResponse = await apiService.uploadImage(imageUri);
-          finalImageUrl = uploadResponse.data.url;
+          finalImageUrl =
+            uploadResponse.data.fullUrl || uploadResponse.data.url;
         } catch (error) {
           console.error('Erro no upload:', error);
           Alert.alert(
@@ -193,10 +195,7 @@ export default function EventFormScreen() {
                   imageUri ||
                   (imageUrl?.startsWith('http')
                     ? imageUrl
-                    : `${
-                        process.env.EXPO_PUBLIC_API_BASE_URL ||
-                        'http://localhost:3001'
-                      }${imageUrl}`),
+                    : buildImageUrl(imageUrl || '') || imageUrl || ''),
               }}
               style={styles.image}
             />

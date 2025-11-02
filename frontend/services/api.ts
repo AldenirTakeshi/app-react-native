@@ -1,8 +1,13 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
+import { getApiBaseUrl } from '../utils/apiConfig';
 
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = getApiBaseUrl();
+
+if (__DEV__) {
+  console.log('API Base URL:', API_BASE_URL);
+  console.log('Platform:', Platform.OS);
+}
 
 const getStorageItem = async (key: string): Promise<string | null> => {
   if (Platform.OS === 'web') {
@@ -157,6 +162,7 @@ export interface UploadResponse {
   message: string;
   data: {
     url: string;
+    fullUrl?: string;
     filename: string;
   };
 }

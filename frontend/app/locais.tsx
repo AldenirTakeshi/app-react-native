@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import { MapViewSafe, MarkerSafe, Region } from '../components/MapViewSafe';
 import { apiService, Location as LocationType } from '../services/api';
 
 export default function LocationsScreen() {
@@ -353,7 +353,7 @@ export default function LocationsScreen() {
                   </TouchableOpacity>
                 </View>
                 <View style={styles.mapContainer}>
-                  <MapView
+                  <MapViewSafe
                     style={styles.map}
                     region={mapRegion}
                     onRegionChangeComplete={setMapRegion}
@@ -362,7 +362,7 @@ export default function LocationsScreen() {
                     showsMyLocationButton={false}
                   >
                     {getMarkerCoordinate() && (
-                      <Marker
+                      <MarkerSafe
                         coordinate={getMarkerCoordinate()!}
                         draggable
                         onDragEnd={(e) => {
@@ -373,7 +373,7 @@ export default function LocationsScreen() {
                         }}
                       />
                     )}
-                  </MapView>
+                  </MapViewSafe>
                 </View>
                 <Text style={styles.mapHint}>
                   Toque no mapa ou arraste o marcador para selecionar a

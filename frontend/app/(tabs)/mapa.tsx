@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { MapViewSafe, MarkerSafe } from '../../components/MapViewSafe';
 import { apiService, Event, Location } from '../../services/api';
 
 export default function MapScreen() {
@@ -112,7 +112,7 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
-      <MapView
+      <MapViewSafe
         style={styles.map}
         initialRegion={getInitialRegion()}
         showsUserLocation
@@ -123,7 +123,7 @@ export default function MapScreen() {
           if (!location) return null;
 
           return (
-            <Marker
+            <MarkerSafe
               key={event.id}
               coordinate={{
                 latitude: location.latitude,
@@ -137,7 +137,7 @@ export default function MapScreen() {
             />
           );
         })}
-      </MapView>
+      </MapViewSafe>
 
       {selectedMarker && (
         <View style={styles.infoCard}>

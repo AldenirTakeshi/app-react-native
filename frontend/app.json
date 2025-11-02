@@ -50,7 +50,8 @@
       "router": {},
       "eas": {
         "projectId": "cdf589fe-445c-4afc-acde-ed1292bf5ad3"
-      }
+      },
+      "apiBaseUrl": "https://app-react-native-production.up.railway.app"
     }
   }
 }
