@@ -54,3 +54,6 @@ const userSchema = new Schema(
 const User = model<IUser>('User', userSchema);
 
 export { User };
+export { Event, IEvent } from './Event';
+export { Category, ICategory } from './Category';
+export { Location, ILocation } from './Location';
