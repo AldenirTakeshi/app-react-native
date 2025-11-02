@@ -7,45 +7,27 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Início',
+          title: 'Eventos',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
+            <Ionicons name="calendar" color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
-        name="gastos"
+        name="mapa"
         options={{
-          title: 'Gastos',
+          title: 'Mapa',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="wallet" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="graficos"
-        options={{
-          title: 'Gráficos',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="pie-chart" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="metas"
-        options={{
-          title: 'Metas',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="trending-up" color={color} size={size} />
+            <Ionicons name="map" color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
-          title: 'Sobre',
+          title: 'Perfil',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="information-circle" color={color} size={size} />
+            <Ionicons name="person" color={color} size={size} />
           ),
         }}
       />
