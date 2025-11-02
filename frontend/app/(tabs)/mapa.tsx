@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { apiService, Event, Location } from '../../services/api';
 
 export default function MapScreen() {
@@ -114,7 +114,6 @@ export default function MapScreen() {
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        provider={PROVIDER_GOOGLE}
         initialRegion={getInitialRegion()}
         showsUserLocation
         showsMyLocationButton

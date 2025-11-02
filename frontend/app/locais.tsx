@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ExpoLocation from 'expo-location';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -15,17 +16,27 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { apiService, Location } from '../services/api';
+import MapView, { Marker, Region } from 'react-native-maps';
+import { apiService, Location as LocationType } from '../services/api';
 
 export default function LocationsScreen() {
-  const [locations, setLocations] = useState<Location[]>([]);
+  const [locations, setLocations] = useState<LocationType[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [editingLocation, setEditingLocation] = useState<LocationType | null>(
+    null,
+  );
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+  const [mapRegion, setMapRegion] = useState<Region>({
+    latitude: -23.5505,
+    longitude: -46.6333,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  });
+  const [mapLoading, setMapLoading] = useState(false);
 
   useEffect(() => {
     loadLocations();
@@ -55,13 +66,77 @@ export default function LocationsScreen() {
     setModalVisible(true);
   };
 
-  const handleEdit = (location: Location) => {
+  const handleEdit = (location: LocationType) => {
     setEditingLocation(location);
     setName(location.name);
     setAddress(location.address || '');
     setLatitude(location.latitude.toString());
     setLongitude(location.longitude.toString());
+
+    setMapRegion({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05,
+    });
+
     setModalVisible(true);
+  };
+
+  const handleGetCurrentLocation = async () => {
+    try {
+      setMapLoading(true);
+
+      const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permissão negada',
+          'É necessário permitir o acesso à localização para usar esta função',
+        );
+        setMapLoading(false);
+        return;
+      }
+
+      const currentLocation = await ExpoLocation.getCurrentPositionAsync({});
+      const lat = currentLocation.coords.latitude;
+      const lng = currentLocation.coords.longitude;
+
+      setLatitude(lat.toString());
+      setLongitude(lng.toString());
+      setMapRegion({
+        latitude: lat,
+        longitude: lng,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      });
+
+      Alert.alert('Sucesso', 'Localização atual obtida!');
+    } catch (error) {
+      console.error('Erro ao obter localização:', error);
+      Alert.alert('Erro', 'Não foi possível obter sua localização atual');
+    } finally {
+      setMapLoading(false);
+    }
+  };
+
+  const handleMapPress = (event: any) => {
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setLatitude(latitude.toString());
+    setLongitude(longitude.toString());
+  };
+
+  const updateMapRegionFromCoordinates = () => {
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      setMapRegion({
+        latitude: lat,
+        longitude: lng,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -138,6 +213,21 @@ export default function LocationsScreen() {
     setAddress('');
     setLatitude('');
     setLongitude('');
+    setMapRegion({
+      latitude: -23.5505,
+      longitude: -46.6333,
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05,
+    });
+  };
+
+  const getMarkerCoordinate = () => {
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      return { latitude: lat, longitude: lng };
+    }
+    return null;
   };
 
   if (loading) {
@@ -195,9 +285,7 @@ export default function LocationsScreen() {
           <View style={styles.emptyContainer}>
             <Ionicons name="location-outline" size={64} color="#666" />
             <Text style={styles.emptyText}>Nenhum local cadastrado</Text>
-            <Text style={styles.emptySubtext}>
-              Crie um local para começar
-            </Text>
+            <Text style={styles.emptySubtext}>Crie um local para começar</Text>
           </View>
         }
         contentContainerStyle={styles.listContent}
@@ -224,7 +312,7 @@ export default function LocationsScreen() {
               <Text style={styles.modalTitle}>
                 {editingLocation ? 'Editar Local' : 'Novo Local'}
               </Text>
-              
+
               <Text style={styles.label}>Nome *</Text>
               <TextInput
                 style={styles.modalInput}
@@ -243,26 +331,83 @@ export default function LocationsScreen() {
                 onChangeText={setAddress}
               />
 
+              {/* Mapa para seleção de localização */}
+              <View style={styles.mapSection}>
+                <View style={styles.mapHeader}>
+                  <Text style={styles.label}>Selecionar no Mapa *</Text>
+                  <TouchableOpacity
+                    style={styles.locationButton}
+                    onPress={handleGetCurrentLocation}
+                    disabled={mapLoading}
+                  >
+                    {mapLoading ? (
+                      <ActivityIndicator size="small" color="#007AFF" />
+                    ) : (
+                      <>
+                        <Ionicons name="locate" size={18} color="#007AFF" />
+                        <Text style={styles.locationButtonText}>
+                          Minha Localização
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.mapContainer}>
+                  <MapView
+                    style={styles.map}
+                    region={mapRegion}
+                    onRegionChangeComplete={setMapRegion}
+                    onPress={handleMapPress}
+                    showsUserLocation
+                    showsMyLocationButton={false}
+                  >
+                    {getMarkerCoordinate() && (
+                      <Marker
+                        coordinate={getMarkerCoordinate()!}
+                        draggable
+                        onDragEnd={(e) => {
+                          const { latitude, longitude } =
+                            e.nativeEvent.coordinate;
+                          setLatitude(latitude.toString());
+                          setLongitude(longitude.toString());
+                        }}
+                      />
+                    )}
+                  </MapView>
+                </View>
+                <Text style={styles.mapHint}>
+                  Toque no mapa ou arraste o marcador para selecionar a
+                  localização
+                </Text>
+              </View>
+
+              {/* Campos de coordenadas (opcionais, mas úteis para edição manual) */}
               <View style={styles.row}>
                 <View style={styles.halfInput}>
-                  <Text style={styles.label}>Latitude *</Text>
+                  <Text style={styles.label}>Latitude</Text>
                   <TextInput
                     style={styles.modalInput}
                     placeholder="-23.5505"
                     placeholderTextColor="#666"
                     value={latitude}
-                    onChangeText={setLatitude}
+                    onChangeText={(text) => {
+                      setLatitude(text);
+                      setTimeout(updateMapRegionFromCoordinates, 500);
+                    }}
                     keyboardType="numeric"
                   />
                 </View>
                 <View style={styles.halfInput}>
-                  <Text style={styles.label}>Longitude *</Text>
+                  <Text style={styles.label}>Longitude</Text>
                   <TextInput
                     style={styles.modalInput}
                     placeholder="-46.6333"
                     placeholderTextColor="#666"
                     value={longitude}
-                    onChangeText={setLongitude}
+                    onChangeText={(text) => {
+                      setLongitude(text);
+                      setTimeout(updateMapRegionFromCoordinates, 500);
+                    }}
                     keyboardType="numeric"
                   />
                 </View>
@@ -443,5 +588,45 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  mapSection: {
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  mapHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  mapContainer: {
+    height: 250,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 8,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+  },
+  map: {
+    flex: 1,
+  },
+  mapHint: {
+    fontSize: 12,
+    color: '#aaa',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  locationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007AFF20',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 6,
+  },
+  locationButtonText: {
+    color: '#007AFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
-
