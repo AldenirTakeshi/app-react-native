@@ -131,7 +131,9 @@ export default function MapScreen() {
                 longitude: location.longitude,
               }}
               title={event.name}
-              description={`${formatDate(event.date)} - ${formatPrice(event.price)}`}
+              description={`${formatDate(event.date)} - ${formatPrice(
+                event.price,
+              )}`}
               onPress={() => handleMarkerPress(event)}
             />
           );
@@ -233,4 +235,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
