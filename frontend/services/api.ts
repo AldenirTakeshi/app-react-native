@@ -329,11 +329,19 @@ class ApiService {
     search?: string,
     category?: string,
     location?: string,
+    minPrice?: number,
+    maxPrice?: number,
+    startDate?: string,
+    endDate?: string,
   ): Promise<EventsListResponse> {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     if (category) params.append('category', category);
     if (location) params.append('location', location);
+    if (minPrice !== undefined) params.append('minPrice', minPrice.toString());
+    if (maxPrice !== undefined) params.append('maxPrice', maxPrice.toString());
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
 
     const query = params.toString();
     const endpoint = `/events${query ? `?${query}` : ''}`;

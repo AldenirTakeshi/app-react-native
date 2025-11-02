@@ -4,11 +4,23 @@ import { Event, Category, Location } from '../models';
 export class EventController {
   static async list(req: Request, res: Response) {
     try {
-      const { search, category, location } = req.query;
+      const {
+        search,
+        category,
+        location,
+        minPrice,
+        maxPrice,
+        startDate,
+        endDate,
+      } = req.query;
       const query: any = {};
 
+      // Filtro de busca por texto
       if (search) {
-        query.$text = { $search: search as string };
+        query.$or = [
+          { name: { $regex: search as string, $options: 'i' } },
+          { description: { $regex: search as string, $options: 'i' } },
+        ];
       }
 
       if (category) {
@@ -17,6 +29,28 @@ export class EventController {
 
       if (location) {
         query.location = location;
+      }
+
+      if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) {
+          query.price.$gte = Number(minPrice);
+        }
+        if (maxPrice) {
+          query.price.$lte = Number(maxPrice);
+        }
+      }
+
+      if (startDate || endDate) {
+        query.date = {};
+        if (startDate) {
+          query.date.$gte = new Date(startDate as string);
+        }
+        if (endDate) {
+          const end = new Date(endDate as string);
+          end.setHours(23, 59, 59, 999);
+          query.date.$lte = end;
+        }
       }
 
       const events = await Event.find(query)
