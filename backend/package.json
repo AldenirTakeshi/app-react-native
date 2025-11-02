@@ -7,7 +7,8 @@
     "start": "node dist/serve.js",
     "dev": "ts-node-dev --respawn --transpile-only src/serve.ts",
     "build": "tsc",
-    "seed": "ts-node src/scripts/seedUsers.ts"
+    "seed": "ts-node src/scripts/seedUsers.ts",
+    "seed-data": "ts-node src/scripts/seedData.ts"
   },
   "dependencies": {
     "@types/multer": "^2.0.0",
