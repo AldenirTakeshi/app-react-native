@@ -1,19 +1,6 @@
 import { Request, Response } from 'express';
-
-const getFullUrl = (req: Request, path: string): string => {
-  if (path.startsWith('http://') || path.startsWith('https://')) {
-    return path;
-  }
-
-  const protocol = req.protocol;
-  const host = req.get('host');
-
-  const baseUrl = process.env.API_BASE_URL || `${protocol}://${host}`;
-
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-
-  return `${baseUrl}${normalizedPath}`;
-};
+import cloudinary from '../config/cloudinary';
+import { Readable } from 'stream';
 
 export class UploadController {
   static async uploadImage(req: Request, res: Response) {
@@ -25,18 +12,54 @@ export class UploadController {
         });
       }
 
-      const relativePath = `/uploads/${req.file.filename}`;
-      const fullUrl = getFullUrl(req, relativePath);
+      if (!process.env.CLOUDINARY_CLOUD_NAME) {
+        return res.status(500).json({
+          success: false,
+          message: 'Serviço de armazenamento não configurado',
+        });
+      }
 
-      res.json({
-        success: true,
-        message: 'Imagem enviada com sucesso',
-        data: {
-          url: relativePath,
-          fullUrl: fullUrl,
-          filename: req.file.filename,
+      const buffer = req.file.buffer;
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'eventos',
+          resource_type: 'image',
+          format: 'jpg',
+          quality: 'auto',
         },
-      });
+        (error, result) => {
+          if (error) {
+            console.error('Erro ao fazer upload para Cloudinary:', error);
+            return res.status(500).json({
+              success: false,
+              message: 'Erro ao fazer upload da imagem',
+            });
+          }
+
+          if (!result) {
+            return res.status(500).json({
+              success: false,
+              message: 'Erro ao processar imagem',
+            });
+          }
+
+          res.json({
+            success: true,
+            message: 'Imagem enviada com sucesso',
+            data: {
+              url: result.secure_url,
+              fullUrl: result.secure_url,
+              publicId: result.public_id,
+              filename: result.original_filename || 'image',
+            },
+          });
+        }
+      );
+
+      const readable = new Readable();
+      readable.push(buffer);
+      readable.push(null);
+      readable.pipe(stream);
     } catch (error) {
       console.error('Erro ao fazer upload da imagem:', error);
       res.status(500).json({
