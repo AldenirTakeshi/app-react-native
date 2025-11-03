@@ -20,7 +20,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.aldenirtakeshi.meuAppReactNative"
+      "package": "com.aldenirtakeshi.meuAppReactNative",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyA0GUwQMl9X3KuBEklAe238hciv3JcCvT8"
+        }
+      }
     },
     "web": {
       "output": "static",
@@ -40,7 +45,12 @@
           }
         }
       ],
-      "react-native-maps"
+      [
+        "react-native-maps",
+        {
+          "googleMapsApiKey": "AIzaSyA0GUwQMl9X3KuBEklAe238hciv3JcCvT8"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
