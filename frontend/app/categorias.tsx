@@ -6,6 +6,7 @@ import {
   Alert,
   FlatList,
   Modal,
+  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -24,6 +25,7 @@ export default function CategoriesScreen() {
   const [categoryName, setCategoryName] = useState('');
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -42,6 +44,12 @@ export default function CategoriesScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadCategories();
+    setRefreshing(false);
   };
 
   const handleCreate = () => {
@@ -136,6 +144,9 @@ export default function CategoriesScreen() {
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         renderItem={({ item }) => (
           <View style={styles.categoryItem}>
             <View

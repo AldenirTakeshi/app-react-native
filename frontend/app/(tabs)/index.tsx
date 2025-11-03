@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,6 +32,7 @@ export default function EventsListScreen() {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadCategoriesAndLocations();
@@ -91,6 +93,16 @@ export default function EventsListScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([
+      loadEvents(),
+      loadCategoriesAndLocations(),
+      getUserLocation(),
+    ]);
+    setRefreshing(false);
   };
 
   const handleEventPress = (event: Event) => {
@@ -164,6 +176,9 @@ export default function EventsListScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <Text style={styles.welcomeText}>Bem vindo ao Aplicativo</Text>
 

@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -41,6 +42,7 @@ export default function LocationsScreen() {
   });
   const [mapLoading, setMapLoading] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadLocations();
@@ -59,6 +61,12 @@ export default function LocationsScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadLocations();
+    setRefreshing(false);
   };
 
   const handleCreate = () => {
@@ -263,6 +271,9 @@ export default function LocationsScreen() {
       <FlatList
         data={locations}
         keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         renderItem={({ item }) => (
           <View style={styles.locationItem}>
             <Ionicons name="location" size={24} color="#FF9800" />
