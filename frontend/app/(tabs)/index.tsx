@@ -12,16 +12,20 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapViewSafe } from '../../components/MapViewSafe';
+import MenuDropdown from '../../components/MenuDropdown';
 import { apiService, Category, Event, Location } from '../../services/api';
 import { buildImageUrl } from '../../utils/apiConfig';
 
 export default function EventsListScreen() {
+  const insets = useSafeAreaInsets();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     loadCategoriesAndLocations();
@@ -124,9 +128,12 @@ export default function EventsListScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Text style={styles.logoText}>Logo</Text>
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => setMenuVisible(true)}
+        >
           <Ionicons name="menu" size={24} color="#000" />
         </TouchableOpacity>
       </View>
@@ -260,6 +267,11 @@ export default function EventsListScreen() {
       <TouchableOpacity style={styles.fab} onPress={handleAddEvent}>
         <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
+
+      <MenuDropdown
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+      />
     </View>
   );
 }
@@ -280,7 +292,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 16,
     paddingBottom: 8,
     backgroundColor: '#FFFFFF',
   },

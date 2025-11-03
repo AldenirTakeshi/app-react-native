@@ -1,10 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MenuDropdown from '../../components/MenuDropdown';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function AboutScreen() {
+  const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
+  const [menuVisible, setMenuVisible] = useState(false);
 
   const handleLogout = async () => {
     Alert.alert('Sair', 'Tem certeza que deseja sair da sua conta?', [
@@ -21,6 +26,17 @@ export default function AboutScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <View style={{ width: 80 }} />
+        <Text style={styles.logoText}>Logo</Text>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => setMenuVisible(true)}
+        >
+          <Ionicons name="menu" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.profileSection}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
@@ -72,6 +88,8 @@ export default function AboutScreen() {
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Sair</Text>
       </TouchableOpacity>
+
+      <MenuDropdown visible={menuVisible} onClose={() => setMenuVisible(false)} />
     </View>
   );
 }
@@ -79,19 +97,36 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
     padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 20,
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  menuButton: {
+    padding: 4,
   },
   profileSection: {
     alignItems: 'center',
     marginBottom: 40,
-    paddingTop: 40,
+    paddingTop: 20,
   },
   avatar: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#1E3A8A',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -104,17 +139,17 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#333',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#aaa',
+    color: '#666',
     marginBottom: 8,
   },
   memberSince: {
     fontSize: 14,
-    color: '#666',
+    color: '#999',
   },
   infoSection: {
     alignItems: 'center',
@@ -123,18 +158,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#333',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#aaa',
+    color: '#666',
     textAlign: 'center',
     marginBottom: 20,
   },
   version: {
     fontSize: 14,
-    color: '#666',
+    color: '#999',
   },
   menuSection: {
     width: '100%',
@@ -143,28 +178,32 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     gap: 12,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
   menuItemText: {
     flex: 1,
     fontSize: 16,
-    color: '#fff',
+    color: '#333',
     fontWeight: '500',
   },
   logoutButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#FFEBEE',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginTop: 'auto',
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#FF3B30',
   },
   logoutButtonText: {
-    color: '#fff',
+    color: '#FF3B30',
     fontSize: 16,
     fontWeight: '600',
   },

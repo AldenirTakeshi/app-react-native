@@ -15,11 +15,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MenuDropdown from '../../components/MenuDropdown';
 import { apiService, Category, Location } from '../../services/api';
 import { showImagePickerOptions } from '../../utils/imagePicker';
 import { buildImageUrl } from '../../utils/apiConfig';
 
 export default function EventFormScreen() {
+  const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
@@ -33,6 +36,7 @@ export default function EventFormScreen() {
   const [loadingData, setLoadingData] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     loadFormData();
@@ -176,12 +180,21 @@ export default function EventFormScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+            <Text style={styles.backText}>Voltar</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Novo Evento</Text>
-          <View style={{ width: 24 }} />
+          <Text style={styles.logoText}>Logo</Text>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => setMenuVisible(true)}
+          >
+            <Ionicons name="menu" size={24} color="#000" />
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -357,6 +370,11 @@ export default function EventFormScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <MenuDropdown
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -364,29 +382,42 @@ export default function EventFormScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
   },
   scrollContent: {
     paddingBottom: 32,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
   },
-  title: {
-    fontSize: 20,
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  backText: {
+    fontSize: 16,
+    color: '#000',
+    fontWeight: '500',
+  },
+  logoText: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#000',
+  },
+  menuButton: {
+    padding: 4,
   },
   imageContainer: {
     width: '100%',

@@ -11,7 +11,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapViewSafe, MarkerSafe } from '../../components/MapViewSafe';
+import MenuDropdown from '../../components/MenuDropdown';
 import { apiService, Event, Location } from '../../services/api';
 import { buildImageUrl } from '../../utils/apiConfig';
 import { useAuth } from '../../contexts/AuthContext';
@@ -19,9 +21,11 @@ import { useAuth } from '../../contexts/AuthContext';
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
+  const insets = useSafeAreaInsets();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageIndex, setImageIndex] = useState(0);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     loadEvent();
@@ -131,7 +135,7 @@ export default function EventDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
@@ -140,7 +144,10 @@ export default function EventDetailScreen() {
           <Text style={styles.backText}>Voltar</Text>
         </TouchableOpacity>
         <Text style={styles.logoText}>Logo</Text>
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => setMenuVisible(true)}
+        >
           <Ionicons name="menu" size={24} color="#000" />
         </TouchableOpacity>
       </View>
@@ -283,6 +290,11 @@ export default function EventDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      <MenuDropdown
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+      />
     </View>
   );
 }
@@ -303,7 +315,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 16,
     paddingBottom: 8,
     backgroundColor: '#FFFFFF',
   },

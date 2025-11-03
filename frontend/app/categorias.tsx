@@ -12,14 +12,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MenuDropdown from '../components/MenuDropdown';
 import { apiService, Category } from '../services/api';
 
 export default function CategoriesScreen() {
+  const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [categoryName, setCategoryName] = useState('');
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -60,7 +64,9 @@ export default function CategoriesScreen() {
 
     try {
       if (editingCategory) {
-        await apiService.updateCategory(editingCategory.id, { name: categoryName });
+        await apiService.updateCategory(editingCategory.id, {
+          name: categoryName,
+        });
         Alert.alert('Sucesso', 'Categoria atualizada com sucesso');
       } else {
         await apiService.createCategory({ name: categoryName });
@@ -71,7 +77,10 @@ export default function CategoriesScreen() {
       setEditingCategory(null);
       loadCategories();
     } catch (error: any) {
-      Alert.alert('Erro', error.message || 'Não foi possível salvar a categoria');
+      Alert.alert(
+        'Erro',
+        error.message || 'Não foi possível salvar a categoria',
+      );
     }
   };
 
@@ -108,13 +117,20 @@ export default function CategoriesScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Text style={styles.backText}>Voltar</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Categorias</Text>
-        <TouchableOpacity onPress={handleCreate}>
-          <Ionicons name="add" size={24} color="#007AFF" />
+        <Text style={styles.logoText}>Logo</Text>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => setMenuVisible(true)}
+        >
+          <Ionicons name="menu" size={24} color="#000" />
         </TouchableOpacity>
       </View>
 
@@ -123,7 +139,12 @@ export default function CategoriesScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.categoryItem}>
-            <View style={[styles.colorIndicator, { backgroundColor: item.color || '#007AFF' }]} />
+            <View
+              style={[
+                styles.colorIndicator,
+                { backgroundColor: item.color || '#007AFF' },
+              ]}
+            />
             <Text style={styles.categoryName}>{item.name}</Text>
             <View style={styles.actions}>
               <TouchableOpacity
@@ -193,6 +214,11 @@ export default function CategoriesScreen() {
           </View>
         </View>
       </Modal>
+
+      <MenuDropdown
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+      />
     </View>
   );
 }
@@ -200,26 +226,39 @@ export default function CategoriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
   },
-  title: {
-    fontSize: 20,
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  backText: {
+    fontSize: 16,
+    color: '#000',
+    fontWeight: '500',
+  },
+  logoText: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#000',
+  },
+  menuButton: {
+    padding: 4,
   },
   listContent: {
     padding: 16,
@@ -227,11 +266,13 @@ const styles = StyleSheet.create({
   categoryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     gap: 12,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
   colorIndicator: {
     width: 24,
@@ -241,7 +282,7 @@ const styles = StyleSheet.create({
   categoryName: {
     flex: 1,
     fontSize: 16,
-    color: '#fff',
+    color: '#333',
     fontWeight: '500',
   },
   actions: {
@@ -260,7 +301,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#fff',
+    color: '#333',
     marginTop: 16,
   },
   emptySubtext: {
@@ -275,7 +316,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     width: '90%',
@@ -284,14 +325,14 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#333',
     marginBottom: 16,
   },
   modalInput: {
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    padding: 12,
-    color: '#fff',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
+    padding: 14,
+    color: '#333',
     fontSize: 16,
     marginBottom: 16,
   },
@@ -322,4 +363,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

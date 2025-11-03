@@ -9,13 +9,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapViewSafe, MarkerSafe } from '../../components/MapViewSafe';
+import MenuDropdown from '../../components/MenuDropdown';
 import { apiService, Event, Location } from '../../services/api';
 
 export default function MapScreen() {
+  const insets = useSafeAreaInsets();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMarker, setSelectedMarker] = useState<Event | null>(null);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     loadEvents();
@@ -117,6 +121,17 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <View style={{ width: 80 }} />
+        <Text style={styles.logoText}>Logo</Text>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => setMenuVisible(true)}
+        >
+          <Ionicons name="menu" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
+
       <MapViewSafe
         style={styles.map}
         initialRegion={initialRegion}
@@ -189,6 +204,11 @@ export default function MapScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      <MenuDropdown
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+      />
     </View>
   );
 }
@@ -201,7 +221,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  menuButton: {
+    padding: 4,
   },
   map: {
     flex: 1,
