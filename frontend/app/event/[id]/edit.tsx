@@ -399,7 +399,6 @@ export default function EditEventScreen() {
         </View>
       </ScrollView>
 
-      {/* Modal de Seleção de Categoria */}
       <Modal
         visible={categoryPickerVisible}
         transparent={true}
@@ -448,7 +447,6 @@ export default function EditEventScreen() {
         </View>
       </Modal>
 
-      {/* Modal de Seleção de Local */}
       <Modal
         visible={locationPickerVisible}
         transparent={true}

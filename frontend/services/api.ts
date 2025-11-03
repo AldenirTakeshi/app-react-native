@@ -4,11 +4,6 @@ import { getApiBaseUrl } from '../utils/apiConfig';
 
 const API_BASE_URL = getApiBaseUrl();
 
-if (__DEV__) {
-  console.log('API Base URL:', API_BASE_URL);
-  console.log('Platform:', Platform.OS);
-}
-
 const getStorageItem = async (key: string): Promise<string | null> => {
   if (Platform.OS === 'web') {
     try {
@@ -179,17 +174,13 @@ class ApiService {
   private async setToken(token: string): Promise<void> {
     try {
       await setStorageItem('auth_token', token);
-    } catch (error) {
-      // Silent fail
-    }
+    } catch (error) {}
   }
 
   private async removeToken(): Promise<void> {
     try {
       await removeStorageItem('auth_token');
-    } catch (error) {
-      // Silent fail
-    }
+    } catch (error) {}
   }
 
   private async makeRequest<T>(
@@ -527,7 +518,8 @@ class ApiService {
     const type = match ? `image/${match[1]}` : 'image/jpeg';
 
     formData.append('image', {
-      uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''),
+      uri:
+        Platform.OS === 'android' ? uri : (uri.replace('file://', '') as any),
       name: imageName,
       type: type,
     } as any);

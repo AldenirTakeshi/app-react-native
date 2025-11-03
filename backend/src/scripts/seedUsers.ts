@@ -18,7 +18,6 @@ const seedUsers = async () => {
     await connectDatabase();
 
     await User.deleteMany({});
-    console.log('🧹 Usuários existentes removidos');
 
     const users = [
       {
@@ -39,16 +38,6 @@ const seedUsers = async () => {
     ];
 
     const createdUsers = await User.insertMany(users);
-
-    console.log('✅ Usuários de teste criados:');
-    createdUsers.forEach((user) => {
-      console.log(`   - ${user.name} (${user.email}) - Senha: 123456`);
-    });
-
-    console.log('\n🔑 Credenciais para teste:');
-    console.log('   Email: joao@teste.com | Senha: 123456');
-    console.log('   Email: maria@teste.com | Senha: 123456');
-    console.log('   Email: pedro@teste.com | Senha: 123456');
 
     process.exit(0);
   } catch (error) {

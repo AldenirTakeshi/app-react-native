@@ -97,7 +97,7 @@ export default function MapScreen() {
       return {
         latitude: -23.5505,
         longitude: -46.6333,
-        latitudeDelta: 0.0922, // Zoom mais próximo (~10km)
+        latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       };
     }
@@ -130,11 +130,6 @@ export default function MapScreen() {
   }
 
   const initialRegion = getInitialRegion();
-  console.log('🗺️ Região inicial do mapa:', initialRegion);
-  console.log(
-    '📍 Eventos com localização:',
-    events.filter((e) => getLocationData(e) !== null).length,
-  );
 
   return (
     <View style={styles.container}>
@@ -157,13 +152,11 @@ export default function MapScreen() {
         loadingEnabled={true}
         mapType="standard"
         onMapReady={() => {
-          console.log('✅ Mapa pronto e carregado!');
         }}
         onError={(error: any) => {
           console.error('❌ Erro no mapa:', JSON.stringify(error, null, 2));
         }}
         onPress={(event: any) => {
-          console.log('📍 Mapa pressionado:', event.nativeEvent.coordinate);
         }}
       >
         {events.map((event) => {

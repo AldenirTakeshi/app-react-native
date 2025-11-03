@@ -10,7 +10,6 @@ export const exampleMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  console.log('Request received:', req.method, req.url);
   next();
 };
 

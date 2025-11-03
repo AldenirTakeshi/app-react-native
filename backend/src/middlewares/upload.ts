@@ -5,7 +5,6 @@ import { Request } from 'express';
 
 const uploadsDir = path.join(__dirname, '../../uploads');
 
-// Criar pasta uploads se não existir
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -34,7 +33,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 export const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter: fileFilter,
 });

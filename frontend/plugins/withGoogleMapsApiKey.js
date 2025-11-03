@@ -2,7 +2,7 @@ const { withAndroidManifest } = require('@expo/config-plugins');
 
 const withGoogleMapsApiKey = (config, { apiKey } = {}) => {
   if (!apiKey) {
-    console.warn('⚠️ Google Maps API Key não fornecida');
+    console.warn('Google Maps API Key não fornecida');
     return config;
   }
 
@@ -34,15 +34,12 @@ const withGoogleMapsApiKey = (config, { apiKey } = {}) => {
           'android:value': apiKey,
         },
       });
-
-      console.log('✅ Google Maps API Key adicionada ao AndroidManifest.xml');
     } else {
       const apiKeyMeta = application['meta-data'].find(
         (meta) => meta.$['android:name'] === 'com.google.android.geo.API_KEY',
       );
       if (apiKeyMeta) {
         apiKeyMeta.$['android:value'] = apiKey;
-        console.log('✅ Google Maps API Key atualizada no AndroidManifest.xml');
       }
     }
 
@@ -51,4 +48,3 @@ const withGoogleMapsApiKey = (config, { apiKey } = {}) => {
 };
 
 module.exports = withGoogleMapsApiKey;
-

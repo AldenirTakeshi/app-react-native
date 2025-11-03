@@ -22,7 +22,6 @@ const loadMapsModule = () => {
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Maps = require('react-native-maps');
     MapView = Maps.default;
     Marker = Maps.Marker;
@@ -84,18 +83,6 @@ export function MapViewSafe({ children, ...props }: MapViewSafeProps) {
     Platform.OS === 'android' && ProviderGoogle
       ? { ...props, provider: ProviderGoogle }
       : props;
-
-  if (Platform.OS === 'android') {
-    console.log(
-      '🗺️ MapView provider:',
-      ProviderGoogle ? 'PROVIDER_GOOGLE' : 'default',
-    );
-    console.log('🗺️ MapView props:', {
-      hasInitialRegion: !!props.initialRegion,
-      hasRegion: !!props.region,
-      showsUserLocation: props.showsUserLocation,
-    });
-  }
 
   return <MapViewComponent {...mapProps}>{children}</MapViewComponent>;
 }

@@ -15,7 +15,6 @@ export class EventController {
       } = req.query;
       const query: any = {};
 
-      // Filtro de busca por texto
       if (search) {
         query.$or = [
           { name: { $regex: search as string, $options: 'i' } },

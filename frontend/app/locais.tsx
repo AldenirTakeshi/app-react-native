@@ -341,7 +341,6 @@ export default function LocationsScreen() {
                 onChangeText={setAddress}
               />
 
-              {/* Mapa para seleção de localização */}
               <View style={styles.mapSection}>
                 <View style={styles.mapHeader}>
                   <Text style={styles.label}>Selecionar no Mapa *</Text>
@@ -391,7 +390,6 @@ export default function LocationsScreen() {
                 </Text>
               </View>
 
-              {/* Campos de coordenadas (opcionais, mas úteis para edição manual) */}
               <View style={styles.row}>
                 <View style={styles.halfInput}>
                   <Text style={styles.label}>Latitude</Text>

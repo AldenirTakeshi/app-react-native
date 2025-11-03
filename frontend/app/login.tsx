@@ -57,7 +57,6 @@ export default function LoginScreen() {
             </View>
 
             <View style={styles.form}>
-              {/* Email Input */}
               <View style={styles.inputWrapper}>
                 <View style={styles.inputContainer}>
                   <Ionicons
@@ -129,11 +128,6 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* <View style={styles.testCredentials}>
-              <Text style={styles.testTitle}>Credenciais de teste:</Text>
-              <Text style={styles.testText}>Email: teste@teste.com</Text>
-              <Text style={styles.testText}>Senha: 123456</Text>
-            </View> */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -160,7 +154,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  // Logo Area
   logoContainer: {
     marginBottom: 60,
     alignItems: 'center',
@@ -179,7 +172,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#666666',
   },
-  // Form
   form: {
     width: '100%',
     marginBottom: 24,

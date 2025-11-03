@@ -8,7 +8,6 @@ const startServer = async () => {
     await connectDatabase();
 
     app.listen(PORT, () => {
-      console.log(`API disponível em: http://localhost:${PORT}`);
     });
   } catch (error) {
     process.exit(1);

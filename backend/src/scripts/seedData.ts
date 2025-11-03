@@ -58,9 +58,6 @@ const seedData = async () => {
       ];
 
       await Category.insertMany(categories);
-      console.log(`✅ ${categories.length} categorias criadas`);
-    } else {
-      console.log(`ℹ${existingCategories} categorias`);
     }
 
     const existingLocations = await Location.countDocuments();
@@ -98,12 +95,7 @@ const seedData = async () => {
       ];
 
       await Location.insertMany(locations);
-      console.log(`✅ ${locations.length} locais criados`);
-    } else {
-      console.log(`ℹ️  Já existem ${existingLocations} locais`);
     }
-
-    console.log('\n✅ Seed concluído com sucesso!');
     process.exit(0);
   } catch (error) {
     console.error('❌ Erro ao criar dados iniciais:', error);
