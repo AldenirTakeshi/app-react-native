@@ -10,14 +10,15 @@ export type Region = {
 
 let MapView: any = null;
 let Marker: any = null;
+let PROVIDER_GOOGLE: any = null;
 
 const loadMapsModule = () => {
   if (Platform.OS === 'web') {
-    return { MapView: null, Marker: null };
+    return { MapView: null, Marker: null, PROVIDER_GOOGLE: null };
   }
 
   if (MapView && Marker) {
-    return { MapView, Marker };
+    return { MapView, Marker, PROVIDER_GOOGLE };
   }
 
   try {
@@ -25,9 +26,10 @@ const loadMapsModule = () => {
     const Maps = require('react-native-maps');
     MapView = Maps.default;
     Marker = Maps.Marker;
-    return { MapView, Marker };
+    PROVIDER_GOOGLE = Maps.PROVIDER_GOOGLE;
+    return { MapView, Marker, PROVIDER_GOOGLE };
   } catch (error) {
-    return { MapView: null, Marker: null };
+    return { MapView: null, Marker: null, PROVIDER_GOOGLE: null };
   }
 };
 
@@ -37,8 +39,12 @@ interface MapViewSafeProps {
   region?: any;
   onRegionChangeComplete?: (region: any) => void;
   onPress?: (event: any) => void;
+  onMapReady?: () => void;
+  onError?: (error: any) => void;
   showsUserLocation?: boolean;
   showsMyLocationButton?: boolean;
+  loadingEnabled?: boolean;
+  mapType?: 'standard' | 'satellite' | 'hybrid' | 'terrain' | 'none';
   children?: React.ReactNode;
 }
 
@@ -52,7 +58,8 @@ interface MarkerSafeProps {
 }
 
 export function MapViewSafe({ children, ...props }: MapViewSafeProps) {
-  const { MapView: MapViewComponent } = loadMapsModule();
+  const { MapView: MapViewComponent, PROVIDER_GOOGLE: ProviderGoogle } =
+    loadMapsModule();
 
   if (Platform.OS === 'web' || !MapViewComponent) {
     return (
@@ -69,7 +76,24 @@ export function MapViewSafe({ children, ...props }: MapViewSafeProps) {
     );
   }
 
-  return <MapViewComponent {...props}>{children}</MapViewComponent>;
+  const mapProps =
+    Platform.OS === 'android' && ProviderGoogle
+      ? { ...props, provider: ProviderGoogle }
+      : props;
+
+  if (Platform.OS === 'android') {
+    console.log(
+      '🗺️ MapView provider:',
+      ProviderGoogle ? 'PROVIDER_GOOGLE' : 'default',
+    );
+    console.log('🗺️ MapView props:', {
+      hasInitialRegion: !!props.initialRegion,
+      hasRegion: !!props.region,
+      showsUserLocation: props.showsUserLocation,
+    });
+  }
+
+  return <MapViewComponent {...mapProps}>{children}</MapViewComponent>;
 }
 
 export function MarkerSafe(props: MarkerSafeProps) {

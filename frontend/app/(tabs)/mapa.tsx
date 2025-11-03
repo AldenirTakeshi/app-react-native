@@ -67,19 +67,17 @@ export default function MapScreen() {
     });
   };
 
-  // Calcular região inicial baseada nos eventos
   const getInitialRegion = () => {
     const validLocations = events
       .map(getLocationData)
       .filter((loc): loc is Location => loc !== null);
 
     if (validLocations.length === 0) {
-      // Região padrão (Brasil central)
       return {
-        latitude: -14.235,
-        longitude: -51.9253,
-        latitudeDelta: 50,
-        longitudeDelta: 50,
+        latitude: -23.5505,
+        longitude: -46.6333,
+        latitudeDelta: 0.0922, // Zoom mais próximo (~10km)
+        longitudeDelta: 0.0421,
       };
     }
 
@@ -91,14 +89,14 @@ export default function MapScreen() {
     const minLng = Math.min(...longitudes);
     const maxLng = Math.max(...longitudes);
 
-    const latDelta = (maxLat - minLat) * 1.5 || 0.1;
-    const lngDelta = (maxLng - minLng) * 1.5 || 0.1;
+    const latDelta = Math.max((maxLat - minLat) * 1.5, 0.01) || 0.05;
+    const lngDelta = Math.max((maxLng - minLng) * 1.5, 0.01) || 0.05;
 
     return {
       latitude: (minLat + maxLat) / 2,
       longitude: (minLng + maxLng) / 2,
-      latitudeDelta: Math.max(latDelta, 0.1),
-      longitudeDelta: Math.max(lngDelta, 0.1),
+      latitudeDelta: Math.max(latDelta, 0.05),
+      longitudeDelta: Math.max(lngDelta, 0.05),
     };
   };
 
@@ -110,13 +108,32 @@ export default function MapScreen() {
     );
   }
 
+  const initialRegion = getInitialRegion();
+  console.log('🗺️ Região inicial do mapa:', initialRegion);
+  console.log(
+    '📍 Eventos com localização:',
+    events.filter((e) => getLocationData(e) !== null).length,
+  );
+
   return (
     <View style={styles.container}>
       <MapViewSafe
         style={styles.map}
-        initialRegion={getInitialRegion()}
-        showsUserLocation
-        showsMyLocationButton
+        initialRegion={initialRegion}
+        region={initialRegion}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        loadingEnabled={true}
+        mapType="standard"
+        onMapReady={() => {
+          console.log('✅ Mapa pronto e carregado!');
+        }}
+        onError={(error: any) => {
+          console.error('❌ Erro no mapa:', JSON.stringify(error, null, 2));
+        }}
+        onPress={(event: any) => {
+          console.log('📍 Mapa pressionado:', event.nativeEvent.coordinate);
+        }}
       >
         {events.map((event) => {
           const location = getLocationData(event);
