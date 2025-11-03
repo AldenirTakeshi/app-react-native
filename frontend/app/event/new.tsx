@@ -7,6 +7,7 @@ import {
   Alert,
   Image,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -37,6 +38,8 @@ export default function EventFormScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
+  const [locationPickerVisible, setLocationPickerVisible] = useState(false);
 
   useEffect(() => {
     loadFormData();
@@ -126,7 +129,7 @@ export default function EventFormScreen() {
       const eventData = {
         name,
         description,
-        date: new Date(date).toISOString(),
+        date: convertDateToISO(date),
         time,
         price: parseFloat(price),
         category: categoryId,
@@ -151,11 +154,11 @@ export default function EventFormScreen() {
 
   const formatDateInput = (text: string) => {
     const cleaned = text.replace(/\D/g, '');
-    if (cleaned.length <= 4) return cleaned;
-    if (cleaned.length <= 6)
-      return `${cleaned.slice(0, 4)}-${cleaned.slice(4)}`;
-    return `${cleaned.slice(0, 4)}-${cleaned.slice(4, 6)}-${cleaned.slice(
-      6,
+    if (cleaned.length <= 2) return cleaned;
+    if (cleaned.length <= 4)
+      return `${cleaned.slice(0, 2)}-${cleaned.slice(2)}`;
+    return `${cleaned.slice(0, 2)}-${cleaned.slice(2, 4)}-${cleaned.slice(
+      4,
       8,
     )}`;
   };
@@ -164,6 +167,21 @@ export default function EventFormScreen() {
     const cleaned = text.replace(/\D/g, '');
     if (cleaned.length <= 2) return cleaned;
     return `${cleaned.slice(0, 2)}:${cleaned.slice(2, 4)}`;
+  };
+
+  const convertDateToISO = (dateString: string) => {
+    const parts = dateString.split('-');
+    if (
+      parts.length === 3 &&
+      parts[0].length === 2 &&
+      parts[1].length === 2 &&
+      parts[2].length === 4
+    ) {
+      const [day, month, year] = parts;
+      const isoDate = `${year}-${month}-${day}`;
+      return new Date(isoDate).toISOString();
+    }
+    return new Date(dateString).toISOString();
   };
 
   if (loadingData) {
@@ -247,7 +265,7 @@ export default function EventFormScreen() {
               <Text style={styles.label}>Data *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="YYYY-MM-DD"
+                placeholder="DD-MM-YYYY"
                 placeholderTextColor="#666"
                 value={date}
                 onChangeText={(text) => setDate(formatDateInput(text))}
@@ -290,23 +308,18 @@ export default function EventFormScreen() {
             )}
           </View>
           {categories.length > 0 ? (
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={categoryId}
-                onValueChange={setCategoryId}
-                style={styles.picker}
-                dropdownIconColor="#fff"
-              >
-                {categories.map((cat) => (
-                  <Picker.Item
-                    key={cat.id}
-                    label={cat.name}
-                    value={cat.id}
-                    color="#fff"
-                  />
-                ))}
-              </Picker>
-            </View>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setCategoryPickerVisible(true)}
+            >
+              <Text style={styles.pickerButtonText}>
+                {categoryId
+                  ? categories.find((c) => c.id === categoryId)?.name ||
+                    'Selecione uma categoria'
+                  : 'Selecione uma categoria'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#666" />
+            </TouchableOpacity>
           ) : (
             <View style={styles.emptyPicker}>
               <Text style={styles.emptyPickerText}>
@@ -328,23 +341,18 @@ export default function EventFormScreen() {
             )}
           </View>
           {locations.length > 0 ? (
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={locationId}
-                onValueChange={setLocationId}
-                style={styles.picker}
-                dropdownIconColor="#fff"
-              >
-                {locations.map((loc) => (
-                  <Picker.Item
-                    key={loc.id}
-                    label={loc.name}
-                    value={loc.id}
-                    color="#fff"
-                  />
-                ))}
-              </Picker>
-            </View>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setLocationPickerVisible(true)}
+            >
+              <Text style={styles.pickerButtonText}>
+                {locationId
+                  ? locations.find((l) => l.id === locationId)?.name ||
+                    'Selecione um local'
+                  : 'Selecione um local'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#666" />
+            </TouchableOpacity>
           ) : (
             <View style={styles.emptyPicker}>
               <Text style={styles.emptyPickerText}>
@@ -370,6 +378,102 @@ export default function EventFormScreen() {
         </View>
       </ScrollView>
 
+      <Modal
+        visible={categoryPickerVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setCategoryPickerVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Selecione a Categoria</Text>
+              <TouchableOpacity
+                onPress={() => setCategoryPickerVisible(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScrollView}>
+              {categories.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.modalOption,
+                    categoryId === cat.id && styles.modalOptionSelected,
+                  ]}
+                  onPress={() => {
+                    setCategoryId(cat.id);
+                    setCategoryPickerVisible(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.modalOptionText,
+                      categoryId === cat.id && styles.modalOptionTextSelected,
+                    ]}
+                  >
+                    {cat.name}
+                  </Text>
+                  {categoryId === cat.id && (
+                    <Ionicons name="checkmark" size={20} color="#1E3A8A" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={locationPickerVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setLocationPickerVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Selecione o Local</Text>
+              <TouchableOpacity
+                onPress={() => setLocationPickerVisible(false)}
+                style={styles.modalCloseButton}
+              >
+                <Ionicons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScrollView}>
+              {locations.map((loc) => (
+                <TouchableOpacity
+                  key={loc.id}
+                  style={[
+                    styles.modalOption,
+                    locationId === loc.id && styles.modalOptionSelected,
+                  ]}
+                  onPress={() => {
+                    setLocationId(loc.id);
+                    setLocationPickerVisible(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.modalOptionText,
+                      locationId === loc.id && styles.modalOptionTextSelected,
+                    ]}
+                  >
+                    {loc.name}
+                  </Text>
+                  {locationId === loc.id && (
+                    <Ionicons name="checkmark" size={20} color="#1E3A8A" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
       <MenuDropdown
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
@@ -391,6 +495,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 32,
+    paddingHorizontal: 0,
   },
   header: {
     flexDirection: 'row',
@@ -421,44 +526,55 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     height: 200,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#E5E5E5',
     marginBottom: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
   },
   image: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
   imagePlaceholder: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
+    height: '100%',
   },
   imagePlaceholderText: {
     color: '#666',
     marginTop: 8,
+    fontSize: 14,
   },
   form: {
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 0,
+    paddingBottom: 20,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
+    color: '#333',
     marginBottom: 8,
-    marginTop: 12,
+    marginTop: 4,
   },
   input: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
-    padding: 12,
-    color: '#fff',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
+    padding: 14,
+    color: '#333',
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#333',
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
   textArea: {
     minHeight: 100,
     textAlignVertical: 'top',
+    borderRadius: 30,
   },
   row: {
     flexDirection: 'row',
@@ -467,15 +583,20 @@ const styles = StyleSheet.create({
   halfInput: {
     flex: 1,
   },
-  pickerContainer: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#333',
-    overflow: 'hidden',
+  pickerButton: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
+    padding: 14,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  picker: {
-    color: '#fff',
+  pickerButtonText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
   },
   inputRow: {
     flexDirection: 'row',
@@ -494,12 +615,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   emptyPicker: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#333',
-    borderStyle: 'dashed',
+    marginBottom: 16,
     alignItems: 'center',
   },
   emptyPickerText: {
@@ -507,8 +626,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   submitButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
+    backgroundColor: '#1E3A8A',
+    borderRadius: 30,
     padding: 16,
     alignItems: 'center',
     marginTop: 24,
@@ -519,6 +638,58 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingBottom: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  modalCloseButton: {
+    padding: 4,
+  },
+  modalScrollView: {
+    maxHeight: 400,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
+  },
+  modalOptionSelected: {
+    backgroundColor: '#E0F2FE',
+  },
+  modalOptionText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+  },
+  modalOptionTextSelected: {
+    color: '#1E3A8A',
     fontWeight: '600',
   },
 });

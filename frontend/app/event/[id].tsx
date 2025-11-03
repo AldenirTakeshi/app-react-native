@@ -214,7 +214,19 @@ export default function EventDetailScreen() {
             <View style={styles.locationSection}>
               <Text style={styles.sectionTitle}>Localização</Text>
 
-              <View style={styles.mapContainer}>
+              <TouchableOpacity
+                style={styles.mapContainer}
+                activeOpacity={0.8}
+                onPress={() => {
+                  router.push({
+                    pathname: '/(tabs)/mapa' as any,
+                    params: {
+                      focusLatitude: location.latitude.toString(),
+                      focusLongitude: location.longitude.toString(),
+                    },
+                  });
+                }}
+              >
                 <MapViewSafe
                   style={styles.map}
                   initialRegion={{
@@ -235,7 +247,7 @@ export default function EventDetailScreen() {
                     }}
                   />
                 </MapViewSafe>
-              </View>
+              </TouchableOpacity>
 
               {location.address && (
                 <View style={styles.addressInfo}>
