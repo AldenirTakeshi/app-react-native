@@ -126,14 +126,19 @@ export default function EventDetailScreen() {
   const isEventOwner = () => {
     if (!event) return false;
     if (!user) return false;
-    
-    const eventCreatorId = typeof event.createdBy === 'string' 
-      ? event.createdBy 
-      : event.createdBy?.id;
-    
+
+    const eventCreatorId =
+      typeof event.createdBy === 'string'
+        ? event.createdBy
+        : event.createdBy?.id;
+
     const currentUserId = user?.id;
-    
-    return eventCreatorId === currentUserId || eventCreatorId === '1' || eventCreatorId === user.id;
+
+    return (
+      eventCreatorId === currentUserId ||
+      eventCreatorId === '1' ||
+      eventCreatorId === user.id
+    );
   };
 
   if (loading) {

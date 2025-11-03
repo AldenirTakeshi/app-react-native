@@ -309,6 +309,77 @@ class ApiService {
     }
   }
 
+  async updateAvatar(uri: string): Promise<MeResponse> {
+    try {
+      const token = await this.getToken();
+      if (!token) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const filename = uri.split('/').pop() || 'avatar.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+      const formData = new FormData();
+      const fileUri =
+        Platform.OS === 'android' ? uri : uri.replace('file://', '');
+
+      formData.append('avatar', {
+        uri: fileUri,
+        name: filename,
+        type,
+      } as any);
+
+      const response = await fetch(`${API_BASE_URL}/auth/avatar`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData as any,
+      });
+
+      let data;
+      const contentType = response.headers.get('content-type');
+
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Erro - Resposta não é JSON:', {
+          status: response.status,
+          statusText: response.statusText,
+          contentType,
+          preview: text.substring(0, 300),
+        });
+
+        if (response.status === 404) {
+          throw new Error(
+            'Endpoint não encontrado. Verifique se o servidor está atualizado.',
+          );
+        }
+
+        throw new Error(
+          `Erro ao atualizar avatar: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao atualizar avatar');
+      }
+
+      return data as MeResponse;
+    } catch (error: any) {
+      console.error('Erro ao atualizar avatar:', error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Erro de conexão. Verifique sua internet.');
+      }
+      if (error.message) {
+        throw error;
+      }
+      throw new Error('Erro ao atualizar avatar. Tente novamente.');
+    }
+  }
+
   async isAuthenticated(): Promise<boolean> {
     const token = await this.getToken();
     if (!token) return false;

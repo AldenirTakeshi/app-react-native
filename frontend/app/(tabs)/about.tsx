@@ -1,15 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MenuDropdown from '../../components/MenuDropdown';
 import { useAuth } from '../../contexts/AuthContext';
+import { showImagePickerOptions } from '../../utils/imagePicker';
+import { buildImageUrl } from '../../utils/apiConfig';
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
-  const { user, logout } = useAuth();
+  const { user, logout, updateAvatar } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const handleLogout = async () => {
     Alert.alert('Sair', 'Tem certeza que deseja sair da sua conta?', [
@@ -22,6 +33,33 @@ export default function AboutScreen() {
         },
       },
     ]);
+  };
+
+  const handleAvatarPress = async () => {
+    try {
+      const result = await showImagePickerOptions(true);
+      if (result.cancelled || !result.uri) {
+        return;
+      }
+
+      setUploadingAvatar(true);
+      await updateAvatar(result.uri);
+      Alert.alert('Sucesso', 'Avatar atualizado com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao atualizar avatar:', error);
+      Alert.alert(
+        'Erro',
+        error.message || 'Não foi possível atualizar o avatar',
+      );
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const getAvatarUrl = () => {
+    if (!user?.avatarUrl) return null;
+    if (user.avatarUrl.startsWith('http')) return user.avatarUrl;
+    return buildImageUrl(user.avatarUrl) || user.avatarUrl;
   };
 
   return (
@@ -37,11 +75,31 @@ export default function AboutScreen() {
       </View>
 
       <View style={styles.profileSection}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {user?.name?.charAt(0).toUpperCase() || 'U'}
-          </Text>
-        </View>
+        <TouchableOpacity
+          onPress={handleAvatarPress}
+          disabled={uploadingAvatar}
+          style={styles.avatarContainer}
+        >
+          {uploadingAvatar ? (
+            <View style={styles.avatar}>
+              <ActivityIndicator size="large" color="#FFFFFF" />
+            </View>
+          ) : getAvatarUrl() ? (
+            <Image
+              source={{ uri: getAvatarUrl() || undefined }}
+              style={styles.avatarImage}
+            />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {user?.name?.charAt(0).toUpperCase() || 'U'}
+              </Text>
+            </View>
+          )}
+          <View style={styles.avatarEditBadge}>
+            <Ionicons name="camera" size={16} color="#FFFFFF" />
+          </View>
+        </TouchableOpacity>
 
         <Text style={styles.userName}>{user?.name || 'Usuário'}</Text>
         <Text style={styles.userEmail}>
@@ -88,7 +146,10 @@ export default function AboutScreen() {
         <Text style={styles.logoutButtonText}>Sair</Text>
       </TouchableOpacity>
 
-      <MenuDropdown visible={menuVisible} onClose={() => setMenuVisible(false)} />
+      <MenuDropdown
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+      />
     </View>
   );
 }
@@ -120,6 +181,10 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 20,
   },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
   avatar: {
     width: 80,
     height: 80,
@@ -127,12 +192,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E3A8A',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#E5E5E5',
   },
   avatarText: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#1E3A8A',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   userName: {
     fontSize: 24,

@@ -15,6 +15,7 @@ interface AuthContextData {
   logout: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   checkAuth: () => Promise<void>;
+  updateAvatar: (uri: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -91,6 +92,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const updateAvatar = async (uri: string) => {
+    try {
+      setIsLoading(true);
+      const response = await apiService.updateAvatar(uri);
+      if (response.success) {
+        setUser(response.data.user);
+      } else {
+        throw new Error('Erro ao atualizar avatar');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar avatar:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -105,6 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logout,
         register,
         checkAuth,
+        updateAvatar,
       }}
     >
       {children}
@@ -121,4 +140,3 @@ export function useAuth(): AuthContextData {
 
   return context;
 }
-

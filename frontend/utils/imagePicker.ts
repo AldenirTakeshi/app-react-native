@@ -6,7 +6,9 @@ export interface ImagePickerResult {
   cancelled: boolean;
 }
 
-export async function pickImageFromGallery(): Promise<ImagePickerResult> {
+export async function pickImageFromGallery(
+  isAvatar: boolean = false,
+): Promise<ImagePickerResult> {
   try {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -21,7 +23,7 @@ export async function pickImageFromGallery(): Promise<ImagePickerResult> {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: 'images',
       allowsEditing: true,
-      aspect: [16, 9],
+      aspect: isAvatar ? [1, 1] : [16, 9],
       quality: 0.8,
     });
 
@@ -40,7 +42,9 @@ export async function pickImageFromGallery(): Promise<ImagePickerResult> {
   }
 }
 
-export async function pickImageFromCamera(): Promise<ImagePickerResult> {
+export async function pickImageFromCamera(
+  isAvatar: boolean = false,
+): Promise<ImagePickerResult> {
   try {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -54,7 +58,7 @@ export async function pickImageFromCamera(): Promise<ImagePickerResult> {
 
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      aspect: [16, 9],
+      aspect: isAvatar ? [1, 1] : [16, 9],
       quality: 0.8,
     });
 
@@ -73,23 +77,25 @@ export async function pickImageFromCamera(): Promise<ImagePickerResult> {
   }
 }
 
-export async function showImagePickerOptions(): Promise<ImagePickerResult> {
+export async function showImagePickerOptions(
+  isAvatar: boolean = false,
+): Promise<ImagePickerResult> {
   return new Promise((resolve) => {
     Alert.alert(
-      'Selecionar Imagem',
+      isAvatar ? 'Selecionar Avatar' : 'Selecionar Imagem',
       'Escolha uma opção',
       [
         {
           text: 'Câmera',
           onPress: async () => {
-            const result = await pickImageFromCamera();
+            const result = await pickImageFromCamera(isAvatar);
             resolve(result);
           },
         },
         {
           text: 'Galeria',
           onPress: async () => {
-            const result = await pickImageFromGallery();
+            const result = await pickImageFromGallery(isAvatar);
             resolve(result);
           },
         },

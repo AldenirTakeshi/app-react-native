@@ -1,8 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Animated,
+  Image,
   Modal,
   StyleSheet,
   Text,
@@ -10,6 +13,8 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { showImagePickerOptions } from '../utils/imagePicker';
+import { buildImageUrl } from '../utils/apiConfig';
 
 interface MenuDropdownProps {
   visible: boolean;
@@ -17,8 +22,9 @@ interface MenuDropdownProps {
 }
 
 export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, updateAvatar } = useAuth();
   const slideAnim = useRef(new Animated.Value(320)).current;
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -51,6 +57,33 @@ export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
     }, 100);
   };
 
+  const handleAvatarPress = async () => {
+    try {
+      const result = await showImagePickerOptions(true);
+      if (result.cancelled || !result.uri) {
+        return;
+      }
+
+      setUploadingAvatar(true);
+      await updateAvatar(result.uri);
+      Alert.alert('Sucesso', 'Avatar atualizado com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao atualizar avatar:', error);
+      Alert.alert(
+        'Erro',
+        error.message || 'Não foi possível atualizar o avatar',
+      );
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const getAvatarUrl = () => {
+    if (!user?.avatarUrl) return null;
+    if (user.avatarUrl.startsWith('http')) return user.avatarUrl;
+    return buildImageUrl(user.avatarUrl) || user.avatarUrl;
+  };
+
   return (
     <Modal
       visible={visible}
@@ -74,11 +107,31 @@ export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
         >
           <View style={styles.menuHeader}>
             <View style={styles.userInfo}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {user?.name?.charAt(0).toUpperCase() || 'U'}
-                </Text>
-              </View>
+              <TouchableOpacity
+                onPress={handleAvatarPress}
+                disabled={uploadingAvatar}
+                style={styles.avatarContainer}
+              >
+                {uploadingAvatar ? (
+                  <View style={styles.avatar}>
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  </View>
+                ) : getAvatarUrl() ? (
+                  <Image
+                    source={{ uri: getAvatarUrl() || undefined }}
+                    style={styles.avatarImage}
+                  />
+                ) : (
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    </Text>
+                  </View>
+                )}
+                <View style={styles.avatarEditBadge}>
+                  <Ionicons name="camera" size={12} color="#FFFFFF" />
+                </View>
+              </TouchableOpacity>
               <View style={styles.userDetails}>
                 <Text style={styles.userName} numberOfLines={1}>
                   {user?.name || 'Usuário'}
@@ -203,6 +256,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 12,
   },
+  avatarContainer: {
+    position: 'relative',
+  },
   avatar: {
     width: 48,
     height: 48,
@@ -211,10 +267,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  avatarImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#E5E5E5',
+  },
   avatarText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#FFFFFF',
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#1E3A8A',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   userDetails: {
     flex: 1,
