@@ -12,10 +12,19 @@ export class UploadController {
         });
       }
 
-      if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      if (
+        !process.env.CLOUDINARY_CLOUD_NAME ||
+        !process.env.CLOUDINARY_API_KEY ||
+        !process.env.CLOUDINARY_API_SECRET
+      ) {
+        console.error('Cloudinary não configurado. Variáveis faltando:', {
+          cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
+          api_key: !!process.env.CLOUDINARY_API_KEY,
+          api_secret: !!process.env.CLOUDINARY_API_SECRET,
+        });
         return res.status(500).json({
           success: false,
-          message: 'Serviço de armazenamento não configurado',
+          message: 'Serviço de armazenamento não configurado. Verifique as variáveis de ambiente CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET',
         });
       }
 

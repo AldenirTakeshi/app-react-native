@@ -48,6 +48,10 @@ export default function EventDetailScreen() {
   };
 
   const handleEdit = () => {
+    if (!user) {
+      Alert.alert('Atenção', 'Você precisa estar logado para editar eventos');
+      return;
+    }
     router.push(`/event/${id}/edit` as any);
   };
 
@@ -112,8 +116,16 @@ export default function EventDetailScreen() {
   };
 
   const isEventOwner = () => {
-    if (!event || !user) return false;
-    return event.createdBy.id === user.id || event.createdBy.id === '1';
+    if (!event) return false;
+    if (!user) return false;
+    
+    const eventCreatorId = typeof event.createdBy === 'string' 
+      ? event.createdBy 
+      : event.createdBy?.id;
+    
+    const currentUserId = user?.id;
+    
+    return eventCreatorId === currentUserId || eventCreatorId === '1' || eventCreatorId === user.id;
   };
 
   if (loading) {
@@ -143,12 +155,20 @@ export default function EventDetailScreen() {
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.logoText}>Logo</Text>
-        <TouchableOpacity
-          style={styles.menuButton}
-          onPress={() => setMenuVisible(true)}
-        >
-          <Ionicons name="menu" size={24} color="#000" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            style={styles.headerEditButton}
+            onPress={handleEdit}
+          >
+            <Ionicons name="create-outline" size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => setMenuVisible(true)}
+          >
+            <Ionicons name="menu" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -286,16 +306,12 @@ export default function EventDetailScreen() {
 
           {isEventOwner() && (
             <View style={styles.actionsContainer}>
-              <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-                <Ionicons name="create-outline" size={20} color="#1E3A8A" />
-                <Text style={styles.editButtonText}>Editar</Text>
-              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={handleDelete}
               >
                 <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-                <Text style={styles.deleteButtonText}>Excluir</Text>
+                <Text style={styles.deleteButtonText}>Excluir Evento</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -346,6 +362,21 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 4,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerEditButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#1E3A8A',
+    marginRight: 8,
+    minWidth: 40,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,

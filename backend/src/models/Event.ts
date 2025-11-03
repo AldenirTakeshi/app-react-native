@@ -34,12 +34,6 @@ const eventSchema = new Schema(
     date: {
       type: Date,
       required: [true, 'Data é obrigatória'],
-      validate: {
-        validator: function (value: Date) {
-          return value > new Date();
-        },
-        message: 'Data deve ser futura',
-      },
     },
     time: {
       type: String,
@@ -96,6 +90,3 @@ eventSchema.index({ createdBy: 1 });
 const Event = model<IEvent>('Event', eventSchema);
 
 export { Event };
-
-
-

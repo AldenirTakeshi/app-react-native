@@ -151,10 +151,21 @@ export class EventController {
         });
       }
 
+      const eventDate = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (eventDate < today) {
+        return res.status(400).json({
+          success: false,
+          message: 'A data do evento deve ser futura',
+        });
+      }
+
       const event = await Event.create({
         name,
         description,
-        date: new Date(date),
+        date: eventDate,
         time,
         price: Number(price),
         category,
