@@ -28,7 +28,9 @@ export default function LoginScreen() {
 
     try {
       await login(email.trim(), password);
-      router.replace('/(tabs)');
+      setTimeout(() => {
+        router.replace('/(tabs)');
+      }, 150);
     } catch {
       Alert.alert('Erro', 'Email ou senha incorretos');
     }

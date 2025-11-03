@@ -21,7 +21,6 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AuthNavigator />
         <Stack>
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="register" options={{ headerShown: false }} />
@@ -30,6 +29,7 @@ export default function RootLayout() {
           <Stack.Screen name="locais" options={{ headerShown: false }} />
           <Stack.Screen name="event" options={{ headerShown: false }} />
         </Stack>
+        <AuthNavigator />
         <StatusBar style="auto" />
       </ThemeProvider>
     </AuthProvider>

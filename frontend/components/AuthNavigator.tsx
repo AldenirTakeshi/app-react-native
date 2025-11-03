@@ -15,31 +15,17 @@ export default function AuthNavigator() {
 
     if (isAuthenticated) {
       if (inLoginRoute) {
-        router.replace('/(tabs)');
+        setTimeout(() => {
+          router.replace('/(tabs)');
+        }, 100);
       }
     } else {
       if (inAuthGroup) {
-        router.replace('/login');
+        setTimeout(() => {
+          router.replace('/login');
+        }, 100);
       }
     }
   }, [isAuthenticated, isLoading, segments]);
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
-
   return null;
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#121212',
-  },
-});
