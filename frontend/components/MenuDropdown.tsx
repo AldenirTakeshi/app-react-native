@@ -18,7 +18,7 @@ interface MenuDropdownProps {
 
 export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
   const { user, logout } = useAuth();
-  const slideAnim = useRef(new Animated.Value(-300)).current;
+  const slideAnim = useRef(new Animated.Value(320)).current;
 
   useEffect(() => {
     if (visible) {
@@ -30,8 +30,8 @@ export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
       }).start();
     } else {
       Animated.timing(slideAnim, {
-        toValue: -300,
-        duration: 200,
+        toValue: 320,
+        duration: 250,
         useNativeDriver: true,
       }).start();
     }
@@ -58,11 +58,12 @@ export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
       animationType="none"
       onRequestClose={onClose}
     >
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
+      <View style={styles.overlay}>
+        <TouchableOpacity
+          style={styles.overlayTouchable}
+          activeOpacity={1}
+          onPress={onClose}
+        />
         <Animated.View
           style={[
             styles.menuContainer,
@@ -149,7 +150,7 @@ export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
             </TouchableOpacity>
           </View>
         </Animated.View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 }
@@ -157,8 +158,16 @@ export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  overlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   menuContainer: {
     width: 320,
@@ -257,4 +266,3 @@ const styles = StyleSheet.create({
     color: '#FF3B30',
   },
 });
-
