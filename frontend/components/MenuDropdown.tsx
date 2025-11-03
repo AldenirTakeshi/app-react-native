@@ -132,6 +132,15 @@ export default function MenuDropdown({ visible, onClose }: MenuDropdownProps) {
 
             <TouchableOpacity
               style={styles.menuItem}
+              onPress={() => handleMenuItemPress('/event/new')}
+            >
+              <Ionicons name="add-circle-outline" size={24} color="#4CAF50" />
+              <Text style={styles.menuItemText}>Criar Evento</Text>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
               onPress={() => handleMenuItemPress('/(tabs)/mapa')}
             >
               <Ionicons name="map-outline" size={24} color="#9C27B0" />

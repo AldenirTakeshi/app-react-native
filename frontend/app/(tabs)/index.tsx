@@ -161,7 +161,11 @@ export default function EventsListScreen() {
         </View>
 
         <Text style={styles.exploreTitle}>Explore os Eventos</Text>
-        <View style={styles.mapPreview}>
+        <TouchableOpacity
+          style={styles.mapPreview}
+          activeOpacity={0.8}
+          onPress={handleMapPress}
+        >
           <MapViewSafe
             style={styles.map}
             initialRegion={{
@@ -179,7 +183,7 @@ export default function EventsListScreen() {
             <Ionicons name="location-outline" size={18} color="#666" />
             <Text style={styles.mapButtonText}>Explore pelo Mapa</Text>
           </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
 
         {filteredEvents.length > 0 && (
           <Text style={styles.eventsCount}>

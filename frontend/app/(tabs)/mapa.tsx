@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -16,6 +16,10 @@ import { apiService, Event, Location } from '../../services/api';
 
 export default function MapScreen() {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{
+    focusLatitude?: string;
+    focusLongitude?: string;
+  }>();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMarker, setSelectedMarker] = useState<Event | null>(null);
@@ -72,6 +76,19 @@ export default function MapScreen() {
   };
 
   const getInitialRegion = () => {
+    if (params.focusLatitude && params.focusLongitude) {
+      const lat = parseFloat(params.focusLatitude);
+      const lng = parseFloat(params.focusLongitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return {
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        };
+      }
+    }
+
     const validLocations = events
       .map(getLocationData)
       .filter((loc): loc is Location => loc !== null);
