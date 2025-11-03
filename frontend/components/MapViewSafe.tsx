@@ -45,6 +45,10 @@ interface MapViewSafeProps {
   showsMyLocationButton?: boolean;
   loadingEnabled?: boolean;
   mapType?: 'standard' | 'satellite' | 'hybrid' | 'terrain' | 'none';
+  scrollEnabled?: boolean;
+  zoomEnabled?: boolean;
+  pitchEnabled?: boolean;
+  rotateEnabled?: boolean;
   children?: React.ReactNode;
 }
 

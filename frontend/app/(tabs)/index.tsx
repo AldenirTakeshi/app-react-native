@@ -1,13 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Image,
-  Modal,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,28 +12,28 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { MapViewSafe } from '../../components/MapViewSafe';
 import { apiService, Category, Event, Location } from '../../services/api';
 import { buildImageUrl } from '../../utils/apiConfig';
 
 export default function EventsListScreen() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [filtersVisible, setFiltersVisible] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedLocation, setSelectedLocation] = useState<string>('');
-  const [minPrice, setMinPrice] = useState<string>('');
-  const [maxPrice, setMaxPrice] = useState<string>('');
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
 
   useEffect(() => {
     loadCategoriesAndLocations();
     loadEvents();
   }, []);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      loadEvents();
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [searchText]);
 
   const loadCategoriesAndLocations = async () => {
     try {
@@ -58,15 +55,7 @@ export default function EventsListScreen() {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const response = await apiService.getEvents(
-        searchText || undefined,
-        selectedCategory || undefined,
-        selectedLocation || undefined,
-        minPrice ? parseFloat(minPrice) : undefined,
-        maxPrice ? parseFloat(maxPrice) : undefined,
-        startDate || undefined,
-        endDate || undefined,
-      );
+      const response = await apiService.getEvents(searchText || undefined);
       if (response.success) {
         setEvents(response.data.events);
       }
@@ -74,48 +63,15 @@ export default function EventsListScreen() {
       console.error('Erro ao carregar eventos:', error);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  };
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadEvents();
-  };
-
-  const handleSearch = () => {
-    loadEvents();
-  };
-
-  const handleApplyFilters = () => {
-    loadEvents();
-    setFiltersVisible(false);
-  };
-
-  const handleClearFilters = () => {
-    setSelectedCategory('');
-    setSelectedLocation('');
-    setMinPrice('');
-    setMaxPrice('');
-    setStartDate('');
-    setEndDate('');
-    loadEvents();
-    setFiltersVisible(false);
-  };
-
-  const hasActiveFilters = () => {
-    return !!(
-      selectedCategory ||
-      selectedLocation ||
-      minPrice ||
-      maxPrice ||
-      startDate ||
-      endDate
-    );
   };
 
   const handleEventPress = (event: Event) => {
     router.push(`/event/${event.id}` as any);
+  };
+
+  const handleMapPress = () => {
+    router.push('/(tabs)/mapa' as any);
   };
 
   const handleAddEvent = () => {
@@ -126,6 +82,7 @@ export default function EventsListScreen() {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
+      minimumFractionDigits: 2,
     }).format(price);
   };
 
@@ -140,7 +97,7 @@ export default function EventsListScreen() {
 
   const getCategoryName = (category: Event['category']) => {
     if (typeof category === 'string') return category;
-    return category.name;
+    return category?.name || 'Sem categoria';
   };
 
   const getImageUrl = (imageUrl?: string) => {
@@ -149,243 +106,160 @@ export default function EventsListScreen() {
     return buildImageUrl(imageUrl) || imageUrl;
   };
 
+  const getLocationData = (event: Event): Location | null => {
+    if (typeof event.location === 'string') return null;
+    return event.location as Location;
+  };
+
   if (loading && events.length === 0) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#1E3A8A" />
       </View>
     );
   }
 
+  const filteredEvents = events;
+  const totalEvents = filteredEvents.length;
+
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar eventos..."
-          placeholderTextColor="#666"
-          value={searchText}
-          onChangeText={setSearchText}
-          onSubmitEditing={handleSearch}
-          returnKeyType="search"
-        />
-        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-          <Ionicons name="search" size={20} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            hasActiveFilters() && styles.filterButtonActive,
-          ]}
-          onPress={() => setFiltersVisible(true)}
-        >
-          <Ionicons
-            name="filter"
-            size={20}
-            color={hasActiveFilters() ? '#007AFF' : '#fff'}
-          />
-          {hasActiveFilters() && <View style={styles.filterBadge} />}
+      <View style={styles.header}>
+        <Text style={styles.logoText}>Logo</Text>
+        <TouchableOpacity style={styles.menuButton}>
+          <Ionicons name="menu" size={24} color="#000" />
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={events}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.eventCard}
-            onPress={() => handleEventPress(item)}
-          >
-            {item.imageUrl && (
-              <Image
-                source={{ uri: getImageUrl(item.imageUrl) || undefined }}
-                style={styles.eventImage}
-                resizeMode="cover"
-              />
-            )}
-            <View style={styles.eventContent}>
-              <Text style={styles.eventName}>{item.name}</Text>
-              <View style={styles.eventInfo}>
-                <View style={styles.eventInfoRow}>
-                  <Ionicons name="calendar-outline" size={16} color="#007AFF" />
-                  <Text style={styles.eventInfoText}>
-                    {formatDate(item.date)} às {item.time}
-                  </Text>
-                </View>
-                <View style={styles.eventInfoRow}>
-                  <Ionicons name="cash-outline" size={16} color="#4CAF50" />
-                  <Text style={styles.eventInfoText}>
-                    {formatPrice(item.price)}
-                  </Text>
-                </View>
-                <View style={styles.eventInfoRow}>
-                  <Ionicons name="pricetag-outline" size={16} color="#FF9800" />
-                  <Text style={styles.eventInfoText}>
-                    {getCategoryName(item.category)}
-                  </Text>
-                </View>
-              </View>
-            </View>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.welcomeText}>Bem vindo ao Aplicativo</Text>
+
+        <View style={styles.searchContainer}>
+          <Ionicons
+            name="search-outline"
+            size={20}
+            color="#999"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Pesquise Eventos, Show e etc.."
+            placeholderTextColor="#999"
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+        </View>
+
+        <Text style={styles.exploreTitle}>Explore os Eventos</Text>
+        <View style={styles.mapPreview}>
+          <MapViewSafe
+            style={styles.map}
+            initialRegion={{
+              latitude: -23.5505,
+              longitude: -46.6333,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
+            }}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            pitchEnabled={false}
+            rotateEnabled={false}
+          />
+          <TouchableOpacity style={styles.mapButton} onPress={handleMapPress}>
+            <Ionicons name="location-outline" size={18} color="#666" />
+            <Text style={styles.mapButtonText}>Explore pelo Mapa</Text>
           </TouchableOpacity>
+        </View>
+
+        {filteredEvents.length > 0 && (
+          <Text style={styles.eventsCount}>
+            Mostrando {filteredEvents.length} de {totalEvents} Eventos
+          </Text>
         )}
-        ListEmptyComponent={
+
+        {filteredEvents.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="calendar-outline" size={64} color="#666" />
-            <Text style={styles.emptyText}>Nenhum evento encontrado</Text>
-            <Text style={styles.emptySubtext}>
-              {searchText
-                ? 'Tente uma busca diferente'
-                : 'Crie um novo evento para começar'}
-            </Text>
+            <Text style={styles.emptyText}>Nenhum evento</Text>
+            <Text style={styles.emptyText}>Localizado</Text>
           </View>
-        }
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={styles.listContent}
-      />
+        ) : (
+          <FlatList
+            data={filteredEvents}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.eventCard}
+                onPress={() => handleEventPress(item)}
+              >
+                <View style={styles.imageContainer}>
+                  {item.imageUrl ? (
+                    <Image
+                      source={{ uri: getImageUrl(item.imageUrl) || undefined }}
+                      style={styles.eventImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.placeholderImage}>
+                      <Ionicons name="image-outline" size={48} color="#999" />
+                    </View>
+                  )}
+                  <View style={styles.carouselIndicators}>
+                    <View style={styles.indicator} />
+                    <View style={styles.indicator} />
+                    <View
+                      style={[styles.indicator, styles.indicatorInactive]}
+                    />
+                    <View
+                      style={[styles.indicator, styles.indicatorInactive]}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.eventInfo}>
+                  <View style={styles.eventHeader}>
+                    <View style={styles.eventTitleContainer}>
+                      <Text style={styles.eventTitle} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.eventType}>
+                        {getCategoryName(item.category)}
+                      </Text>
+                    </View>
+                    <Text style={styles.eventDate}>
+                      {formatDate(item.date)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.eventFooter}>
+                    <View style={styles.priceContainer}>
+                      <Text style={styles.priceLabel}>Ingresso</Text>
+                      <Text style={styles.priceValue}>
+                        {formatPrice(item.price)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.detailsButton}
+                      onPress={() => handleEventPress(item)}
+                    >
+                      <Text style={styles.detailsButtonText}>
+                        Mais Detalhes ▸
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        )}
+      </ScrollView>
 
       <TouchableOpacity style={styles.fab} onPress={handleAddEvent}>
         <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
-
-      {/* Modal de Filtros */}
-      <Modal
-        visible={filtersVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setFiltersVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filtros</Text>
-              <TouchableOpacity onPress={() => setFiltersVisible(false)}>
-                <Ionicons name="close" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.modalBody}>
-              {/* Filtro por Categoria */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Categoria</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={selectedCategory}
-                    onValueChange={setSelectedCategory}
-                    style={styles.picker}
-                    dropdownIconColor="#fff"
-                  >
-                    <Picker.Item label="Todas" value="" color="#fff" />
-                    {categories.map((cat) => (
-                      <Picker.Item
-                        key={cat.id}
-                        label={cat.name}
-                        value={cat.id}
-                        color="#fff"
-                      />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
-
-              {/* Filtro por Localização */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Localização</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={selectedLocation}
-                    onValueChange={setSelectedLocation}
-                    style={styles.picker}
-                    dropdownIconColor="#fff"
-                  >
-                    <Picker.Item label="Todos" value="" color="#fff" />
-                    {locations.map((loc) => (
-                      <Picker.Item
-                        key={loc.id}
-                        label={loc.name}
-                        value={loc.id}
-                        color="#fff"
-                      />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
-
-              {/* Filtro por Preço */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Preço</Text>
-                <View style={styles.priceRow}>
-                  <View style={styles.priceInputContainer}>
-                    <Text style={styles.priceLabel}>Mínimo</Text>
-                    <TextInput
-                      style={styles.priceInput}
-                      placeholder="R$ 0,00"
-                      placeholderTextColor="#666"
-                      value={minPrice}
-                      onChangeText={setMinPrice}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                  <View style={styles.priceInputContainer}>
-                    <Text style={styles.priceLabel}>Máximo</Text>
-                    <TextInput
-                      style={styles.priceInput}
-                      placeholder="R$ 999,99"
-                      placeholderTextColor="#666"
-                      value={maxPrice}
-                      onChangeText={setMaxPrice}
-                      keyboardType="numeric"
-                    />
-                  </View>
-                </View>
-              </View>
-
-              {/* Filtro por Data */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterLabel}>Data</Text>
-                <View style={styles.dateRow}>
-                  <View style={styles.dateInputContainer}>
-                    <Text style={styles.dateLabel}>De</Text>
-                    <TextInput
-                      style={styles.dateInput}
-                      placeholder="YYYY-MM-DD"
-                      placeholderTextColor="#666"
-                      value={startDate}
-                      onChangeText={setStartDate}
-                    />
-                  </View>
-                  <View style={styles.dateInputContainer}>
-                    <Text style={styles.dateLabel}>Até</Text>
-                    <TextInput
-                      style={styles.dateInput}
-                      placeholder="YYYY-MM-DD"
-                      placeholderTextColor="#666"
-                      value={endDate}
-                      onChangeText={setEndDate}
-                    />
-                  </View>
-                </View>
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={handleClearFilters}
-              >
-                <Text style={styles.clearButtonText}>Limpar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.applyButton}
-                onPress={handleApplyFilters}
-              >
-                <Text style={styles.applyButtonText}>Aplicar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -393,125 +267,226 @@ export default function EventsListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#121212',
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  menuButton: {
+    padding: 4,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',
-    padding: 16,
-    backgroundColor: '#1E1E1E',
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginHorizontal: 20,
+    marginBottom: 24,
+  },
+  searchIcon: {
+    marginRight: 12,
   },
   searchInput: {
     flex: 1,
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    color: '#fff',
     fontSize: 16,
-    marginRight: 8,
+    color: '#333',
+    padding: 0,
   },
-  searchButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterButton: {
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    padding: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-    position: 'relative',
-  },
-  filterButtonActive: {
-    backgroundColor: '#1A3A5F',
-  },
-  filterBadge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#007AFF',
-  },
-  listContent: {
-    padding: 16,
-  },
-  eventCard: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  eventImage: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#333',
-  },
-  eventContent: {
-    padding: 16,
-  },
-  eventName: {
-    fontSize: 20,
+  exploreTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#333',
+    marginHorizontal: 20,
     marginBottom: 12,
   },
-  eventInfo: {
-    gap: 8,
+  mapPreview: {
+    height: 200,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginBottom: 24,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: '#E5E5E5',
   },
-  eventInfoRow: {
+  map: {
+    flex: 1,
+  },
+  mapButton: {
+    position: 'absolute',
+    bottom: 16,
+    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     gap: 8,
   },
-  eventInfoText: {
+  mapButtonText: {
     fontSize: 14,
-    color: '#aaa',
+    fontWeight: '500',
+    color: '#666',
+  },
+  eventsCount: {
+    fontSize: 14,
+    color: '#666',
+    marginHorizontal: 20,
+    marginBottom: 16,
   },
   emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingVertical: 80,
     alignItems: 'center',
-    paddingVertical: 64,
+    justifyContent: 'center',
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
-    marginTop: 16,
+    fontWeight: '500',
+    color: '#333',
+    textAlign: 'center',
+    lineHeight: 28,
   },
-  emptySubtext: {
+  eventCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 200,
+    position: 'relative',
+  },
+  eventImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#E5E5E5',
+  },
+  placeholderImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#E5E5E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  carouselIndicators: {
+    position: 'absolute',
+    bottom: 12,
+    left: '50%',
+    transform: [{ translateX: -32 }],
+    flexDirection: 'row',
+    gap: 8,
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#1E3A8A',
+  },
+  indicatorInactive: {
+    backgroundColor: '#FFFFFF',
+  },
+  eventInfo: {
+    padding: 16,
+  },
+  eventHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  eventTitleContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+  eventTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1E3A8A',
+    marginBottom: 4,
+  },
+  eventType: {
+    fontSize: 14,
+    color: '#999',
+  },
+  eventDate: {
     fontSize: 14,
     color: '#666',
-    marginTop: 8,
-    textAlign: 'center',
+    fontWeight: '500',
+  },
+  eventFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  priceContainer: {
+    flex: 1,
+  },
+  priceLabel: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 4,
+  },
+  priceValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  detailsButton: {
+    backgroundColor: '#1E3A8A',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  detailsButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
   fab: {
     position: 'absolute',
-    right: 16,
-    bottom: 16,
+    right: 20,
+    bottom: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#1E3A8A',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -519,121 +494,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 8,
-  },
-  // Modal de Filtros
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#1E1E1E',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  modalBody: {
-    padding: 20,
-    maxHeight: 400,
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-    gap: 12,
-  },
-  filterSection: {
-    marginBottom: 24,
-  },
-  filterLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 12,
-  },
-  pickerContainer: {
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  picker: {
-    color: '#fff',
-    backgroundColor: '#2A2A2A',
-  },
-  priceRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  priceInputContainer: {
-    flex: 1,
-  },
-  priceLabel: {
-    fontSize: 14,
-    color: '#aaa',
-    marginBottom: 8,
-  },
-  priceInput: {
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    padding: 12,
-    color: '#fff',
-    fontSize: 16,
-  },
-  dateRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  dateInputContainer: {
-    flex: 1,
-  },
-  dateLabel: {
-    fontSize: 14,
-    color: '#aaa',
-    marginBottom: 8,
-  },
-  dateInput: {
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    padding: 12,
-    color: '#fff',
-    fontSize: 16,
-  },
-  clearButton: {
-    flex: 1,
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-  },
-  clearButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  applyButton: {
-    flex: 1,
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
