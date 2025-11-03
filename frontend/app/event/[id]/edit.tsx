@@ -516,6 +516,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 32,
+    paddingHorizontal: 0,
   },
   header: {
     flexDirection: 'row',
@@ -578,22 +579,23 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
+    color: '#333',
     marginBottom: 8,
-    marginTop: 12,
+    marginTop: 4,
   },
   input: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
-    padding: 12,
-    color: '#fff',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
+    padding: 14,
+    color: '#333',
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#333',
+    marginBottom: 16,
+    paddingHorizontal: 16,
   },
   textArea: {
     minHeight: 100,
     textAlignVertical: 'top',
+    borderRadius: 30,
   },
   row: {
     flexDirection: 'row',
@@ -634,12 +636,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   emptyPicker: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 30,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#333',
-    borderStyle: 'dashed',
+    marginBottom: 16,
     alignItems: 'center',
   },
   emptyPickerText: {
@@ -647,8 +647,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   submitButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
+    backgroundColor: '#1E3A8A',
+    borderRadius: 30,
     padding: 16,
     alignItems: 'center',
     marginTop: 24,
