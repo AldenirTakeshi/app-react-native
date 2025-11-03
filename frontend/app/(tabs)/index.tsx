@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ExpoLocation from 'expo-location';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -26,11 +27,33 @@ export default function EventsListScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   useEffect(() => {
     loadCategoriesAndLocations();
     loadEvents();
+    getUserLocation();
   }, []);
+
+  const getUserLocation = async () => {
+    try {
+      const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        return;
+      }
+
+      const currentLocation = await ExpoLocation.getCurrentPositionAsync({});
+      setUserLocation({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+      });
+    } catch (error) {
+      console.error('Erro ao obter localização:', error);
+    }
+  };
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -168,16 +191,26 @@ export default function EventsListScreen() {
         >
           <MapViewSafe
             style={styles.map}
-            initialRegion={{
-              latitude: -23.5505,
-              longitude: -46.6333,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
-            }}
+            initialRegion={
+              userLocation
+                ? {
+                    latitude: userLocation.latitude,
+                    longitude: userLocation.longitude,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
+                  }
+                : {
+                    latitude: -23.5505,
+                    longitude: -46.6333,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
+                  }
+            }
             scrollEnabled={false}
             zoomEnabled={false}
             pitchEnabled={false}
             rotateEnabled={false}
+            showsUserLocation={true}
           />
           <TouchableOpacity style={styles.mapButton} onPress={handleMapPress}>
             <Ionicons name="location-outline" size={18} color="#666" />
