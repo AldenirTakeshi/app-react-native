@@ -12,19 +12,23 @@ export class UploadController {
         });
       }
 
-      if (
-        !process.env.CLOUDINARY_CLOUD_NAME ||
-        !process.env.CLOUDINARY_API_KEY ||
-        !process.env.CLOUDINARY_API_SECRET
-      ) {
-        console.error('Cloudinary não configurado. Variáveis faltando:', {
-          cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
-          api_key: !!process.env.CLOUDINARY_API_KEY,
-          api_secret: !!process.env.CLOUDINARY_API_SECRET,
-        });
+      const cloudinaryUrl = process.env.CLOUDINARY_URL;
+      const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+      const apiKey = process.env.CLOUDINARY_API_KEY;
+      const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+      const isConfigured = cloudinaryUrl || (cloudName && apiKey && apiSecret);
+
+      if (!isConfigured) {
+        const missing = [];
+        if (!cloudinaryUrl && !cloudName) missing.push('CLOUDINARY_URL ou CLOUDINARY_CLOUD_NAME');
+        if (!cloudinaryUrl && !apiKey) missing.push('CLOUDINARY_API_KEY');
+        if (!cloudinaryUrl && !apiSecret) missing.push('CLOUDINARY_API_SECRET');
+        
+        console.error('Cloudinary não configurado. Variáveis faltando:', missing.join(', '));
         return res.status(500).json({
           success: false,
-          message: 'Serviço de armazenamento não configurado. Verifique as variáveis de ambiente CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET',
+          message: `Serviço de armazenamento não configurado. Variáveis faltando: ${missing.join(', ')}`,
         });
       }
 
