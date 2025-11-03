@@ -27,7 +27,6 @@ export default function AboutScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <View style={{ width: 80 }} />
         <Text style={styles.logoText}>Logo</Text>
         <TouchableOpacity
           style={styles.menuButton}
@@ -98,7 +97,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    padding: 20,
   },
   header: {
     flexDirection: 'row',
@@ -107,7 +105,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 8,
     backgroundColor: '#FFFFFF',
-    marginBottom: 20,
   },
   logoText: {
     fontSize: 18,
@@ -121,6 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
     paddingTop: 20,
+    paddingHorizontal: 20,
   },
   avatar: {
     width: 80,
@@ -154,6 +152,7 @@ const styles = StyleSheet.create({
   infoSection: {
     alignItems: 'center',
     marginBottom: 40,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,
@@ -174,6 +173,7 @@ const styles = StyleSheet.create({
   menuSection: {
     width: '100%',
     marginBottom: 24,
+    paddingHorizontal: 20,
   },
   menuItem: {
     flexDirection: 'row',
@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 'auto',
     marginBottom: 20,
+    marginHorizontal: 20,
     borderWidth: 1,
     borderColor: '#FF3B30',
   },

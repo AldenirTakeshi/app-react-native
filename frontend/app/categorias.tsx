@@ -123,7 +123,6 @@ export default function CategoriesScreen() {
           style={styles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#000" />
-          <Text style={styles.backText}>Voltar</Text>
         </TouchableOpacity>
         <Text style={styles.logoText}>Logo</Text>
         <TouchableOpacity
@@ -214,6 +213,10 @@ export default function CategoriesScreen() {
           </View>
         </View>
       </Modal>
+
+      <TouchableOpacity style={styles.fab} onPress={handleCreate}>
+        <Ionicons name="add" size={32} color="#fff" />
+      </TouchableOpacity>
 
       <MenuDropdown
         visible={menuVisible}
@@ -361,5 +364,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#1E3A8A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
 });

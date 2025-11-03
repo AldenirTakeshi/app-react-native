@@ -122,7 +122,6 @@ export default function MapScreen() {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <View style={{ width: 80 }} />
         <Text style={styles.logoText}>Logo</Text>
         <TouchableOpacity
           style={styles.menuButton}

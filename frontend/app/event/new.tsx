@@ -186,7 +186,6 @@ export default function EventFormScreen() {
             style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color="#000" />
-            <Text style={styles.backText}>Voltar</Text>
           </TouchableOpacity>
           <Text style={styles.logoText}>Logo</Text>
           <TouchableOpacity
