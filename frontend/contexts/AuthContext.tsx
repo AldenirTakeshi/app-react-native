@@ -110,7 +110,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   useEffect(() => {
-    checkAuth();
+    const initAuth = async () => {
+      try {
+        await checkAuth();
+      } catch (error) {
+        console.error('Erro ao inicializar autenticação:', error);
+        setIsLoading(false);
+        setUser(null);
+      }
+    };
+    initAuth();
   }, []);
 
   return (

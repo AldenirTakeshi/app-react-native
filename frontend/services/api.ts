@@ -2,7 +2,14 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { getApiBaseUrl } from '../utils/apiConfig';
 
-const API_BASE_URL = getApiBaseUrl();
+const getApiBaseUrlSafe = (): string => {
+  try {
+    return getApiBaseUrl();
+  } catch (error) {
+    console.error('Erro ao obter URL da API:', error);
+    return 'https://app-react-native-production.up.railway.app';
+  }
+};
 
 const getStorageItem = async (key: string): Promise<string | null> => {
   if (Platform.OS === 'web') {
@@ -12,7 +19,12 @@ const getStorageItem = async (key: string): Promise<string | null> => {
       return null;
     }
   }
-  return await SecureStore.getItemAsync(key);
+  try {
+    return await SecureStore.getItemAsync(key);
+  } catch (error) {
+    console.warn('Erro ao ler do SecureStore:', error);
+    return null;
+  }
 };
 
 const setStorageItem = async (key: string, value: string): Promise<void> => {
@@ -23,7 +35,11 @@ const setStorageItem = async (key: string, value: string): Promise<void> => {
       console.error('Erro ao salvar no localStorage:', error);
     }
   } else {
-    await SecureStore.setItemAsync(key, value);
+    try {
+      await SecureStore.setItemAsync(key, value);
+    } catch (error) {
+      console.error('Erro ao salvar no SecureStore:', error);
+    }
   }
 };
 
@@ -35,7 +51,11 @@ const removeStorageItem = async (key: string): Promise<void> => {
       console.error('Erro ao remover do localStorage:', error);
     }
   } else {
-    await SecureStore.deleteItemAsync(key);
+    try {
+      await SecureStore.deleteItemAsync(key);
+    } catch (error) {
+      console.warn('Erro ao remover do SecureStore:', error);
+    }
   }
 };
 
@@ -187,25 +207,63 @@ class ApiService {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    const token = await this.getToken();
+    try {
+      const token = await this.getToken();
 
-    const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options.headers,
-      },
-      ...options,
-    };
+      const config: RequestInit = {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
+          ...options.headers,
+        },
+        ...options,
+      };
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    const data = await response.json();
+      const response = await fetch(`${getApiBaseUrlSafe()}${endpoint}`, config);
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Erro na requisição');
+      const contentType = response.headers.get('content-type');
+      let data: any;
+
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          const text = await response.text();
+          console.error('Erro ao parsear JSON:', {
+            status: response.status,
+            statusText: response.statusText,
+            preview: text.substring(0, 200),
+          });
+          throw new Error(
+            `Erro ao processar resposta: ${response.status} ${response.statusText}`,
+          );
+        }
+      } else {
+        const text = await response.text();
+        console.error('Resposta não é JSON:', {
+          status: response.status,
+          statusText: response.statusText,
+          contentType,
+          preview: text.substring(0, 200),
+        });
+        throw new Error(
+          `Resposta inválida: ${response.status} ${response.statusText}`,
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || `Erro na requisição: ${response.status}`,
+        );
+      }
+
+      return data;
+    } catch (error: any) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error(error?.message || 'Erro desconhecido na requisição');
     }
-
-    return data;
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
@@ -330,7 +388,7 @@ class ApiService {
         type,
       } as any);
 
-      const response = await fetch(`${API_BASE_URL}/auth/avatar`, {
+      const response = await fetch(`${getApiBaseUrlSafe()}/auth/avatar`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -381,14 +439,20 @@ class ApiService {
   }
 
   async isAuthenticated(): Promise<boolean> {
-    const token = await this.getToken();
-    if (!token) return false;
-
     try {
-      await this.me();
-      return true;
+      const token = await this.getToken();
+      if (!token) return false;
+
+      try {
+        await this.me();
+        return true;
+      } catch (error) {
+        try {
+          await this.removeToken();
+        } catch (removeError) {}
+        return false;
+      }
     } catch (error) {
-      await this.removeToken();
       return false;
     }
   }
@@ -595,7 +659,7 @@ class ApiService {
       type: type,
     } as any);
 
-    const response = await fetch(`${API_BASE_URL}/upload/image`, {
+    const response = await fetch(`${getApiBaseUrlSafe()}/upload/image`, {
       method: 'POST',
       headers: {
         ...(token && { Authorization: `Bearer ${token}` }),
