@@ -17,7 +17,9 @@
     "build:dev-local": "eas build --profile development --local --platform android",
     "build:preview-local": "eas build --profile preview --local --platform android",
     "build:prod-local": "eas build --profile production --local --platform android",
-    "debug": "node ./scripts/debug.js",
+    "build:production": "eas build --platform android --profile production",
+    "build:preview": "eas build --platform android --profile preview",
+    "prepare-production": "node ./scripts/prepare-production.js",
     "logs": "adb logcat | Select-String ReactNative"
   },
   "dependencies": {
@@ -55,11 +57,19 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
-    "@expo/config-plugins": "^54.0.2",
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "install": {
+      "exclude": [
+        "react-native-maps",
+        "@react-navigation/bottom-tabs",
+        "@react-navigation/native"
+      ]
+    }
+  }
 }

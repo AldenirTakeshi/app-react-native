@@ -342,8 +342,8 @@ function EventsListScreenContent() {
                     <View style={styles.mapPlaceholder}>
                       <Ionicons name="map-outline" size={48} color="#999" />
                       <Text style={styles.mapPlaceholderText}>
-                        Mapa temporariamente indisponível
-                      </Text>
+                      Mapa temporariamente indisponível
+                    </Text>
                       <Text style={styles.mapPlaceholderSubtext}>
                         Recompile: npm run android
                       </Text>
